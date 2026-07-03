@@ -24,7 +24,7 @@ public class SoundLibraryMixin {
         try {
             return ClientConfig.MAX_SOUND_SOURCES.get();
         } catch (IllegalStateException notLoadedYet) {
-            return 255;
+            return 512;
         }
     }
 
@@ -38,9 +38,11 @@ public class SoundLibraryMixin {
 
         MemoryStack stack = MemoryStack.stackGet();
 
+        // Keeps stereo sources at 16 — pipe organ sounds are all positional/mono, and a low
+        // stereo count avoids exceeding driver voice limits which causes audio cracking.
         int[] attribArray = new int[] {
             ALC11.ALC_MONO_SOURCES, requestedSources,
-            ALC11.ALC_STEREO_SOURCES, Math.min(requestedSources, 128),
+            ALC11.ALC_STEREO_SOURCES, 16,
             0
         };
 

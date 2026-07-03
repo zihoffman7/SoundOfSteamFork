@@ -171,8 +171,7 @@
       {
         "type": "file",
         "attenuation_distance": 64,
-        "name": "pipeorgans:haunted_whistle/hw_superhigh",
-        "volume": 0.25
+        "name": "pipeorgans:haunted_whistle/hw_superhigh"
       }
     ]
   },
@@ -182,8 +181,7 @@
       {
         "type": "file",
         "attenuation_distance": 64,
-        "name": "pipeorgans:haunted_whistle/hw_high",
-        "volume": 0.25
+        "name": "pipeorgans:haunted_whistle/hw_high"
       }
     ]
   },
@@ -193,8 +191,7 @@
       {
         "type": "file",
         "attenuation_distance": 64,
-        "name": "pipeorgans:haunted_whistle/hw_medium",
-        "volume": 0.25
+        "name": "pipeorgans:haunted_whistle/hw_medium"
       }
     ]
   },
@@ -204,8 +201,7 @@
       {
         "type": "file",
         "attenuation_distance": 64,
-        "name": "pipeorgans:haunted_whistle/hw_low",
-        "volume": 0.25
+        "name": "pipeorgans:haunted_whistle/hw_low"
       }
     ]
   },
@@ -215,8 +211,7 @@
       {
         "type": "file",
         "attenuation_distance": 64,
-        "name": "pipeorgans:haunted_whistle/hw_deep",
-        "volume": 0.25
+        "name": "pipeorgans:haunted_whistle/hw_deep"
       }
     ]
   },
@@ -285,8 +280,7 @@
       {
         "type": "file",
         "attenuation_distance": 64,
-        "name": "pipeorgans:gamba/gm_superhigh",
-        "volume": 0.25
+        "name": "pipeorgans:gamba/gm_superhigh"
       }
     ]
   },
@@ -296,8 +290,7 @@
       {
         "type": "file",
         "attenuation_distance": 64,
-        "name": "pipeorgans:gamba/gm_high",
-        "volume": 0.25
+        "name": "pipeorgans:gamba/gm_high"
       }
     ]
   },
@@ -307,8 +300,7 @@
       {
         "type": "file",
         "attenuation_distance": 64,
-        "name": "pipeorgans:gamba/gm_medium",
-        "volume": 0.25
+        "name": "pipeorgans:gamba/gm_medium"
       }
     ]
   },
@@ -318,8 +310,7 @@
       {
         "type": "file",
         "attenuation_distance": 64,
-        "name": "pipeorgans:gamba/gm_low",
-        "volume": 0.25
+        "name": "pipeorgans:gamba/gm_low"
       }
     ]
   },
@@ -329,8 +320,7 @@
       {
         "type": "file",
         "attenuation_distance": 64,
-        "name": "pipeorgans:gamba/gm_deep",
-        "volume": 0.25
+        "name": "pipeorgans:gamba/gm_deep"
       }
     ]
   },
@@ -500,8 +490,7 @@
       {
         "type": "file",
         "attenuation_distance": 64,
-        "name": "pipeorgans:oktav/ok_superhigh",
-        "volume": 0.25
+        "name": "pipeorgans:oktav/ok_superhigh"
       }
     ]
   },
@@ -511,8 +500,7 @@
       {
         "type": "file",
         "attenuation_distance": 64,
-        "name": "pipeorgans:oktav/ok_high",
-        "volume": 0.25
+        "name": "pipeorgans:oktav/ok_high"
       }
     ]
   },
@@ -522,8 +510,7 @@
       {
         "type": "file",
         "attenuation_distance": 64,
-        "name": "pipeorgans:oktav/ok_medium",
-        "volume": 0.25
+        "name": "pipeorgans:oktav/ok_medium"
       }
     ]
   },
@@ -533,8 +520,7 @@
       {
         "type": "file",
         "attenuation_distance": 64,
-        "name": "pipeorgans:oktav/ok_low",
-        "volume": 0.25
+        "name": "pipeorgans:oktav/ok_low"
       }
     ]
   },
@@ -544,8 +530,7 @@
       {
         "type": "file",
         "attenuation_distance": 64,
-        "name": "pipeorgans:oktav/ok_deep",
-        "volume": 0.25
+        "name": "pipeorgans:oktav/ok_deep"
       }
     ]
   },
@@ -605,8 +590,7 @@
       {
         "type": "file",
         "attenuation_distance": 64,
-        "name": "pipeorgans:untersatz/u_superhigh",
-        "volume": 0.25
+        "name": "pipeorgans:untersatz/u_superhigh"
       }
     ]
   },
@@ -616,8 +600,7 @@
       {
         "type": "file",
         "attenuation_distance": 64,
-        "name": "pipeorgans:untersatz/u_high",
-        "volume": 0.25
+        "name": "pipeorgans:untersatz/u_high"
       }
     ]
   },
@@ -627,8 +610,7 @@
       {
         "type": "file",
         "attenuation_distance": 64,
-        "name": "pipeorgans:untersatz/u_medium",
-        "volume": 0.25
+        "name": "pipeorgans:untersatz/u_medium"
       }
     ]
   },
@@ -638,8 +620,7 @@
       {
         "type": "file",
         "attenuation_distance": 64,
-        "name": "pipeorgans:untersatz/u_low",
-        "volume": 0.25
+        "name": "pipeorgans:untersatz/u_low"
       }
     ]
   },
@@ -649,8 +630,7 @@
       {
         "type": "file",
         "attenuation_distance": 64,
-        "name": "pipeorgans:untersatz/u_deep",
-        "volume": 0.25
+        "name": "pipeorgans:untersatz/u_deep"
       }
     ]
   },
@@ -660,8 +640,7 @@
       {
         "type": "file",
         "attenuation_distance": 64,
-        "name": "pipeorgans:open_wood/ow_superhigh",
-        "volume": 0.25
+        "name": "pipeorgans:open_wood/ow_superhigh"
       }
     ]
   },
@@ -671,8 +650,7 @@
       {
         "type": "file",
         "attenuation_distance": 64,
-        "name": "pipeorgans:open_wood/ow_high",
-        "volume": 0.25
+        "name": "pipeorgans:open_wood/ow_high"
       }
     ]
   },
@@ -682,8 +660,7 @@
       {
         "type": "file",
         "attenuation_distance": 64,
-        "name": "pipeorgans:open_wood/ow_medium",
-        "volume": 0.25
+        "name": "pipeorgans:open_wood/ow_medium"
       }
     ]
   },
@@ -693,8 +670,7 @@
       {
         "type": "file",
         "attenuation_distance": 64,
-        "name": "pipeorgans:open_wood/ow_low",
-        "volume": 0.25
+        "name": "pipeorgans:open_wood/ow_low"
       }
     ]
   },
@@ -704,8 +680,7 @@
       {
         "type": "file",
         "attenuation_distance": 64,
-        "name": "pipeorgans:open_wood/ow_deep",
-        "volume": 0.25
+        "name": "pipeorgans:open_wood/ow_deep"
       }
     ]
   },
@@ -815,8 +790,7 @@
       {
         "type": "file",
         "attenuation_distance": 64,
-        "name": "pipeorgans:english_horn/eh_superhigh",
-        "volume": 0.25
+        "name": "pipeorgans:english_horn/eh_superhigh"
       }
     ]
   },
@@ -826,8 +800,7 @@
       {
         "type": "file",
         "attenuation_distance": 64,
-        "name": "pipeorgans:english_horn/eh_high",
-        "volume": 0.25
+        "name": "pipeorgans:english_horn/eh_high"
       }
     ]
   },
@@ -837,8 +810,7 @@
       {
         "type": "file",
         "attenuation_distance": 64,
-        "name": "pipeorgans:english_horn/eh_medium",
-        "volume": 0.25
+        "name": "pipeorgans:english_horn/eh_medium"
       }
     ]
   },
@@ -848,8 +820,7 @@
       {
         "type": "file",
         "attenuation_distance": 64,
-        "name": "pipeorgans:english_horn/eh_low",
-        "volume": 0.25
+        "name": "pipeorgans:english_horn/eh_low"
       }
     ]
   },
@@ -859,8 +830,7 @@
       {
         "type": "file",
         "attenuation_distance": 64,
-        "name": "pipeorgans:english_horn/eh_deep",
-        "volume": 0.25
+        "name": "pipeorgans:english_horn/eh_deep"
       }
     ]
   },
@@ -870,8 +840,7 @@
       {
         "type": "file",
         "attenuation_distance": 64,
-        "name": "pipeorgans:chamade/ch_superhigh",
-        "volume": 0.25
+        "name": "pipeorgans:chamade/ch_superhigh"
       }
     ]
   },
@@ -881,8 +850,7 @@
       {
         "type": "file",
         "attenuation_distance": 64,
-        "name": "pipeorgans:chamade/ch_high",
-        "volume": 0.25
+        "name": "pipeorgans:chamade/ch_high"
       }
     ]
   },
@@ -892,8 +860,7 @@
       {
         "type": "file",
         "attenuation_distance": 64,
-        "name": "pipeorgans:chamade/ch_medium",
-        "volume": 0.25
+        "name": "pipeorgans:chamade/ch_medium"
       }
     ]
   },
@@ -903,8 +870,7 @@
       {
         "type": "file",
         "attenuation_distance": 64,
-        "name": "pipeorgans:chamade/ch_low",
-        "volume": 0.25
+        "name": "pipeorgans:chamade/ch_low"
       }
     ]
   },
@@ -914,8 +880,7 @@
       {
         "type": "file",
         "attenuation_distance": 64,
-        "name": "pipeorgans:chamade/ch_deep",
-        "volume": 0.25
+        "name": "pipeorgans:chamade/ch_deep"
       }
     ]
   },
@@ -1025,8 +990,7 @@
       {
         "type": "file",
         "attenuation_distance": 64,
-        "name": "pipeorgans:posaune/ps_superhigh",
-        "volume": 0.25
+        "name": "pipeorgans:posaune/ps_superhigh"
       }
     ]
   },
@@ -1036,8 +1000,7 @@
       {
         "type": "file",
         "attenuation_distance": 64,
-        "name": "pipeorgans:posaune/ps_high",
-        "volume": 0.25
+        "name": "pipeorgans:posaune/ps_high"
       }
     ]
   },
@@ -1047,8 +1010,7 @@
       {
         "type": "file",
         "attenuation_distance": 64,
-        "name": "pipeorgans:posaune/ps_medium",
-        "volume": 0.25
+        "name": "pipeorgans:posaune/ps_medium"
       }
     ]
   },
@@ -1058,8 +1020,7 @@
       {
         "type": "file",
         "attenuation_distance": 64,
-        "name": "pipeorgans:posaune/ps_low",
-        "volume": 0.25
+        "name": "pipeorgans:posaune/ps_low"
       }
     ]
   },
@@ -1069,8 +1030,7 @@
       {
         "type": "file",
         "attenuation_distance": 64,
-        "name": "pipeorgans:posaune/ps_deep",
-        "volume": 0.25
+        "name": "pipeorgans:posaune/ps_deep"
       }
     ]
   },
@@ -1230,8 +1190,7 @@
       {
         "type": "file",
         "attenuation_distance": 64,
-        "name": "pipeorgans:vox_humana/vh_superhigh",
-        "volume": 0.25
+        "name": "pipeorgans:vox_humana/vh_superhigh"
       }
     ]
   },
@@ -1241,8 +1200,7 @@
       {
         "type": "file",
         "attenuation_distance": 64,
-        "name": "pipeorgans:vox_humana/vh_high",
-        "volume": 0.25
+        "name": "pipeorgans:vox_humana/vh_high"
       }
     ]
   },
@@ -1252,8 +1210,7 @@
       {
         "type": "file",
         "attenuation_distance": 64,
-        "name": "pipeorgans:vox_humana/vh_medium",
-        "volume": 0.25
+        "name": "pipeorgans:vox_humana/vh_medium"
       }
     ]
   },
@@ -1263,8 +1220,7 @@
       {
         "type": "file",
         "attenuation_distance": 64,
-        "name": "pipeorgans:vox_humana/vh_low",
-        "volume": 0.25
+        "name": "pipeorgans:vox_humana/vh_low"
       }
     ]
   },
@@ -1274,8 +1230,7 @@
       {
         "type": "file",
         "attenuation_distance": 64,
-        "name": "pipeorgans:vox_humana/vh_deep",
-        "volume": 0.25
+        "name": "pipeorgans:vox_humana/vh_deep"
       }
     ]
   },

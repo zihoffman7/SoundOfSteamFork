@@ -24,13 +24,36 @@ public class OrganConsoleMenu extends MenuBase<OrganConsoleBlockEntity> {
     public static final int TITLE_Y = 6;
     public static final int SLOT = 18;
 
+    // -----------------------------------------------------------------------
+    // Pedal widgets (pedalboard mode only) — rendered above the filter row
+    // -----------------------------------------------------------------------
+    public static final int PEDAL_AREA_TOP = 18;     // y of the pedal widget row
+    public static final int PEDAL_W = 52;            // width of each pedal widget
+    public static final int PEDAL_H = 36;            // height of each pedal widget
+    public static final int PEDAL_GAP = 4;           // gap between pedals
+    public static final int PEDAL_X0 = MARGIN;       // x of first pedal widget
+
+    public static int pedalX(int index) {
+        return PEDAL_X0 + index * (PEDAL_W + PEDAL_GAP);
+    }
+
+    // Total height occupied by pedal widgets row
+    public static final int PEDAL_ROW_H = PEDAL_H + 6;
+
+    // -----------------------------------------------------------------------
     // Horizontal filter row near the top. Each section has an OUTPUT and an INPUT filter, grouped together.
+    // -----------------------------------------------------------------------
     public static final int FILTERS_X = 8;       // bg-left of the first filter group
-    public static final int FILTER_ROW_Y = 18;   // bg-top of the filter row
+    public static final int FILTER_ROW_Y = 18;   // bg-top of the filter row (manuals mode)
     public static final int GROUP_GAP = 6;       // gap between adjacent section groups
 
+    /** Y of the filter row — shifted down in pedalboard mode to leave room for pedal widgets. */
+    public static int filterRowY(boolean pedalboard) {
+        return pedalboard ? PEDAL_AREA_TOP + PEDAL_ROW_H : FILTER_ROW_Y;
+    }
+
     // Stacked keyboards below the filter row
-    public static final int KEYBOARDS_TOP = FILTER_ROW_Y + SLOT + 8; // 44
+    public static final int KEYBOARDS_TOP_BASE = FILTER_ROW_Y + SLOT + 8; // 44 in manuals mode
     public static final int ROW_PITCH = 22;      // KEY_H + a tiny gap between manuals
     public static final int KEY_H = 18;
     public static final int KEYBOARD_X = 8;
@@ -93,8 +116,17 @@ public class OrganConsoleMenu extends MenuBase<OrganConsoleBlockEntity> {
         return pedalboard ? OrganConsoleBlockEntity.PEDAL_SECTION : row;
     }
 
+    public static int keyboardsTop(boolean pedalboard) {
+        return filterRowY(pedalboard) + SLOT + 8;
+    }
+
+    public static int rowTop(boolean pedalboard, int row) {
+        return keyboardsTop(pedalboard) + row * ROW_PITCH;
+    }
+
+    // Legacy overload used in screen render — defaults to non-pedalboard (manuals)
     public static int rowTop(int row) {
-        return KEYBOARDS_TOP + row * ROW_PITCH;
+        return KEYBOARDS_TOP_BASE + row * ROW_PITCH;
     }
 
     public static int keyWidth(boolean pedalboard) {
@@ -110,7 +142,7 @@ public class OrganConsoleMenu extends MenuBase<OrganConsoleBlockEntity> {
     }
 
     public static int contentBottom(boolean pedalboard, int manualCount) {
-        return KEYBOARDS_TOP + keyboardRows(pedalboard, manualCount) * ROW_PITCH;
+        return keyboardsTop(pedalboard) + keyboardRows(pedalboard, manualCount) * ROW_PITCH;
     }
 
     public static int playerInvY(boolean pedalboard, int manualCount) {
@@ -165,7 +197,7 @@ public class OrganConsoleMenu extends MenuBase<OrganConsoleBlockEntity> {
         for (int i = 0; i < groups; i++) {
             int section = sectionForRow(pedalboardMode, i);
             addSlot(new SlotItemHandler(ghostInventory, OrganConsoleBlockEntity.divisionSlot(section),
-                    filterBgX(i) + 1, FILTER_ROW_Y + 1));
+                    filterBgX(i) + 1, filterRowY(pedalboardMode) + 1));
             ghost.add(OrganConsoleBlockEntity.divisionSlot(section));
         }
 

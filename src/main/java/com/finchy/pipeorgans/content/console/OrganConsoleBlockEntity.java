@@ -160,7 +160,7 @@ public class OrganConsoleBlockEntity extends SmartBlockEntity implements MenuPro
     public void setPedalConfig(int pedalIndex, PedalData.Pedal updatedPedal) {
         if (pedalIndex < 0 || pedalIndex >= PedalData.PEDAL_COUNT)
             return;
-        int savedPos = updatedPedal.name.isEmpty() ? 0 : pedalData.getPedal(pedalIndex).position;
+        int savedPos = updatedPedal.name.isEmpty() ? 0 : (pedalData.getPedal(pedalIndex).name.isEmpty() ? 15 : pedalData.getPedal(pedalIndex).position);
         updatedPedal.position = savedPos;
         pedalData.setPedal(pedalIndex, updatedPedal);
         if (level != null && !level.isClientSide)

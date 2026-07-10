@@ -35,6 +35,11 @@ public class OrganConsoleScreen extends AbstractSimiContainerScreen<OrganConsole
     private long momentaryKey = -1;
     private final Set<Long> active = new HashSet<>();
 
+    private int heldPedalBtn = 0;
+    private int heldTicks = 0;
+    private static final int HOLD_INITIAL_DELAY = 5; // ticks before repeat starts
+    private static final int HOLD_REPEAT_RATE = 1;  // ticks between repeats
+
     public OrganConsoleScreen(OrganConsoleMenu container, Inventory inv, Component title) {
         super(container, inv, title);
         this.pedalboardMode = container.isPedalboardMode();
@@ -121,6 +126,33 @@ public class OrganConsoleScreen extends AbstractSimiContainerScreen<OrganConsole
         updateActive();
     }
 
+    // Pedal button helpers
+
+    private void movePedal(int encodedBtn) {
+        int pedalIndex = Math.abs(encodedBtn) / 10 - 1;
+        boolean plus = encodedBtn > 0;
+        int currentPos = console.getPedalData().getPedal(pedalIndex).position;
+        int newPos = plus ? Math.min(PedalData.MAX_POSITION, currentPos + 1)
+                         : Math.max(0, currentPos - 1);
+        if (newPos != currentPos) {
+            console.getPedalData().getPedal(pedalIndex).position = newPos;
+            AllPackets.getChannel().sendToServer(
+                    new PedalPositionPacket(consolePos, pedalIndex, newPos));
+        }
+    }
+
+    @Override
+    public void containerTick() {
+        super.containerTick();
+        if (heldPedalBtn != 0) {
+            heldTicks++;
+            if (heldTicks >= HOLD_INITIAL_DELAY
+                    && (heldTicks - HOLD_INITIAL_DELAY) % HOLD_REPEAT_RATE == 0) {
+                movePedal(heldPedalBtn);
+            }
+        }
+    }
+
     // Input
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
@@ -130,20 +162,12 @@ public class OrganConsoleScreen extends AbstractSimiContainerScreen<OrganConsole
         // Pedal +/- buttons
         int pedalBtn = pedalButtonAt(guiX, guiY);
         if (pedalBtn != 0) {
-            int pedalIndex = Math.abs(pedalBtn) / 10 - 1;
-            boolean plus = pedalBtn > 0;
-            int currentPos = console.getPedalData().getPedal(pedalIndex).position;
-            int newPos = plus ? Math.min(PedalData.MAX_POSITION, currentPos + 1)
-                              : Math.max(0, currentPos - 1);
-            if (newPos != currentPos) {
-                console.getPedalData().getPedal(pedalIndex).position = newPos; // optimistic client update
-                AllPackets.getChannel().sendToServer(
-                        new PedalPositionPacket(consolePos, pedalIndex, newPos));
-            }
+            heldPedalBtn = pedalBtn;
+            heldTicks = 0;
+            movePedal(pedalBtn);
             return true;
         }
 
-        // Right-click pedal widget body → open edit screen
         if (button == 1) {
             int pedalIndex = pedalAt(guiX, guiY);
             if (pedalIndex >= 0) {
@@ -184,6 +208,8 @@ public class OrganConsoleScreen extends AbstractSimiContainerScreen<OrganConsole
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        heldPedalBtn = 0;
+        heldTicks = 0;
         if (button == 0 && momentaryKey != -1) {
             momentaryKey = -1;
             updateActive();
@@ -217,7 +243,6 @@ public class OrganConsoleScreen extends AbstractSimiContainerScreen<OrganConsole
                 drawPedalWidget(graphics, i, mouseX, mouseY);
         }
 
-        // Division filter slot background — only show if pedalboard keyboard is enabled, or in manuals mode
         if (!pedalboardMode || console.hasPedalboard()) {
             int groups = OrganConsoleMenu.emitFilterCount(pedalboardMode, mc);
             int filterY = OrganConsoleMenu.filterRowY(pedalboardMode);
@@ -225,7 +250,6 @@ public class OrganConsoleScreen extends AbstractSimiContainerScreen<OrganConsole
                 drawSlotBackground(graphics, OrganConsoleMenu.filterBgX(i) + 1, filterY + 1);
         }
 
-        // Keyboards (only shown in pedalboard mode if pedalboard keyboard is enabled)
         if (!pedalboardMode || console.hasPedalboard()) {
             for (int row = 0; row < rowCount(); row++) {
                 int section = sectionForRow(row);
@@ -273,7 +297,8 @@ public class OrganConsoleScreen extends AbstractSimiContainerScreen<OrganConsole
         String label = unused ? "Unused" : pedal.name;
         int labelColor = unused ? 0xFF555555 : COLOR_PEDAL_NAME;
         String truncLabel = font.width(label) > ww - 8 ? font.plainSubstrByWidth(label, ww - 10) + "…" : label;
-        graphics.drawString(font, truncLabel, wx + 4, wy + 4, labelColor, false);
+        int labelX = wx + (ww - font.width(truncLabel)) / 2;
+        graphics.drawString(font, truncLabel, labelX, wy + 4, labelColor, false);
 
         // Position display — always centered
         int btnY = wy + wh - 14;

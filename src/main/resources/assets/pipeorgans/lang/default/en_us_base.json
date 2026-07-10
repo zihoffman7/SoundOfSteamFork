@@ -17,9 +17,9 @@
   "gui.pipeorgans.pedal_edit.title": "Edit Pedal",
   "gui.pipeorgans.pedal_edit.pedal": "Pedal %1$s",
   "gui.pipeorgans.pedal_edit.name": "Name",
-  "gui.pipeorgans.pedal_edit.name_hint": "Swell...",
-  "gui.pipeorgans.pedal_edit.frequency_pair": "Frequency Pair",
-  "gui.pipeorgans.pedal_edit.save": "Save",
+  "gui.pipeorgans.pedal_edit.name_hint": "Box Name",
+  "gui.pipeorgans.pedal_edit.frequency_pair": "Box Frequency",
+  "gui.pipeorgans.pedal_edit.save": "Back",
 
   "gui.pipeorgans.stop.main": "Stop Manager",
   "gui.pipeorgans.stop.edit": "Edit Stop",

@@ -235,10 +235,7 @@ public class OrganConsoleBlockEntity extends SmartBlockEntity implements MenuPro
         NetworkHooks.openScreen(player, new net.minecraft.world.MenuProvider() {
             @Override
             public net.minecraft.network.chat.Component getDisplayName() {
-                return Component.translatable("gui.pipeorgans.pedal_edit.title",
-                        pedalData.getPedal(pedalIndex).name.isEmpty()
-                                ? Component.translatable("gui.pipeorgans.pedal_edit.pedal", pedalIndex + 1)
-                                : Component.literal(pedalData.getPedal(pedalIndex).name));
+                return Component.translatable("gui.pipeorgans.pedal_edit.title");
             }
 
             @Override

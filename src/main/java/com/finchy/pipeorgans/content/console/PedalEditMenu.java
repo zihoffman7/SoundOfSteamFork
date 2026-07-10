@@ -23,6 +23,7 @@ public class PedalEditMenu extends MenuBase<OrganConsoleBlockEntity> {
     public static final int NAME_BOX_Y = 28;
     public static final int FREQ_LABEL_Y = 48;
     public static final int FREQ_ROW_Y = 58;   // bg-top of the two freq slots
+    public static final int BUTTONS_Y  = FREQ_ROW_Y + 24; // save button row, clear of freq slots
     public static final int SLOT_A_X = 8;
     public static final int SLOT_B_X = 30;
     public static final int FIELD_X = 8;
@@ -53,7 +54,7 @@ public class PedalEditMenu extends MenuBase<OrganConsoleBlockEntity> {
     public OrganConsoleBlockEntity getConsoleBE() { return contentHolder; }
     public int getPedalIndex() { return menuPedalIndex; }
 
-    public static int contentBottom() { return FREQ_ROW_Y + 20; }
+    public static int contentBottom() { return BUTTONS_Y + 20; } // button (18) + 2px gap
     public static int playerInvY()    { return contentBottom() + INV_GAP; }
     public static int guiWidth()      { return Math.max(FIELD_X + FIELD_W + MARGIN, PLAYER_INV_W + 2 * MARGIN); }
     public static int guiHeight()     { return playerInvY() + PLAYER_INV_H + MARGIN; }

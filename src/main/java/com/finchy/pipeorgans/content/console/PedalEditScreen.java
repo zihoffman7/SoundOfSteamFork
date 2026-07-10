@@ -49,9 +49,9 @@ public class PedalEditScreen extends AbstractSimiContainerScreen<PedalEditMenu> 
                 .withStyle(net.minecraft.ChatFormatting.DARK_GRAY));
         addRenderableWidget(nameBox);
 
-        // Save button
+        // Save button — sits between freq slots and inventory
         int bw = 50;
-        int by = topPos + PedalEditMenu.contentBottom() + 2;
+        int by = topPos + PedalEditMenu.BUTTONS_Y;
         int bx = leftPos + PedalEditMenu.FIELD_X + (PedalEditMenu.FIELD_W - bw) / 2;
         addRenderableWidget(Button.builder(
                 Component.translatable("gui.pipeorgans.pedal_edit.save"), b -> sendSave())

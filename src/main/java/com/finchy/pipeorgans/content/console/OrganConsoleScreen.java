@@ -54,8 +54,8 @@ public class OrganConsoleScreen extends AbstractSimiContainerScreen<OrganConsole
     @Override
     protected void init() {
         setWindowSize(
-                OrganConsoleMenu.guiWidth(pedalboardMode, manualCount()),
-                OrganConsoleMenu.guiHeight(pedalboardMode, manualCount()));
+                OrganConsoleMenu.guiWidth(pedalboardMode, console.hasPedalboard(), manualCount()),
+                OrganConsoleMenu.guiHeight(pedalboardMode, console.hasPedalboard(), manualCount()));
         setWindowOffset(0, 0);
         super.init();
     }
@@ -217,11 +217,13 @@ public class OrganConsoleScreen extends AbstractSimiContainerScreen<OrganConsole
                 drawPedalWidget(graphics, i, mouseX, mouseY);
         }
 
-        // Division filter slot background per section
-        int groups = OrganConsoleMenu.emitFilterCount(pedalboardMode, mc);
-        int filterY = OrganConsoleMenu.filterRowY(pedalboardMode);
-        for (int i = 0; i < groups; i++)
-            drawSlotBackground(graphics, OrganConsoleMenu.filterBgX(i) + 1, filterY + 1);
+        // Division filter slot background — only show if pedalboard keyboard is enabled, or in manuals mode
+        if (!pedalboardMode || console.hasPedalboard()) {
+            int groups = OrganConsoleMenu.emitFilterCount(pedalboardMode, mc);
+            int filterY = OrganConsoleMenu.filterRowY(pedalboardMode);
+            for (int i = 0; i < groups; i++)
+                drawSlotBackground(graphics, OrganConsoleMenu.filterBgX(i) + 1, filterY + 1);
+        }
 
         // Keyboards (only shown in pedalboard mode if pedalboard keyboard is enabled)
         if (!pedalboardMode || console.hasPedalboard()) {
@@ -233,8 +235,8 @@ public class OrganConsoleScreen extends AbstractSimiContainerScreen<OrganConsole
         }
 
         // Player inventory slot backgrounds
-        int invX = OrganConsoleMenu.playerInvX(pedalboardMode, mc);
-        int invY = OrganConsoleMenu.playerInvY(pedalboardMode, mc);
+        int invX = OrganConsoleMenu.playerInvX(pedalboardMode, console.hasPedalboard(), mc);
+        int invY = OrganConsoleMenu.playerInvY(pedalboardMode, console.hasPedalboard(), mc);
         for (int row = 0; row < 3; row++)
             for (int col = 0; col < 9; col++)
                 drawSlotBackground(graphics, invX + col * 18, invY + row * 18);
@@ -251,7 +253,7 @@ public class OrganConsoleScreen extends AbstractSimiContainerScreen<OrganConsole
     private static final int COLOR_BTN_HOVER      = 0xFF606060;
 
     private void drawPedalWidget(GuiGraphics graphics, int index, int mouseX, int mouseY) {
-        int wx = leftPos + OrganConsoleMenu.pedalX(index);
+        int wx = leftPos + OrganConsoleMenu.pedalX(index, imageWidth);
         int wy = topPos + OrganConsoleMenu.PEDAL_AREA_TOP;
         int ww = OrganConsoleMenu.PEDAL_W;
         int wh = OrganConsoleMenu.PEDAL_H;
@@ -265,13 +267,13 @@ public class OrganConsoleScreen extends AbstractSimiContainerScreen<OrganConsole
         graphics.fill(wx + ww - 1, wy, wx + ww, wy + wh, COLOR_PEDAL_BORDER);
 
         PedalData.Pedal pedal = console.getPedalData().getPedal(index);
-        String name = pedal.name.isEmpty()
-                ? (pedal.type == PedalData.PedalType.CRESCENDO ? "Crescendo" : "Swell " + (index + 1))
-                : pedal.name;
+        boolean hasName = !pedal.name.isEmpty();
+        String name = hasName ? pedal.name : "Swell " + (index + 1);
+        int nameColor = hasName ? COLOR_PEDAL_NAME : 0xFF666666; // grey if placeholder
 
         // Name (truncated)
         String truncName = font.width(name) > ww - 8 ? font.plainSubstrByWidth(name, ww - 10) + "…" : name;
-        graphics.drawString(font, truncName, wx + 4, wy + 4, COLOR_PEDAL_NAME, false);
+        graphics.drawString(font, truncName, wx + 4, wy + 4, nameColor, false);
 
         // Position: - [pos] +
         int pos = pedal.position;
@@ -295,11 +297,10 @@ public class OrganConsoleScreen extends AbstractSimiContainerScreen<OrganConsole
         graphics.drawString(font, "+", plusX + 2, btnY + 1, COLOR_PEDAL_POS, false);
     }
 
-    /** Returns the pedal index if the click is inside a pedal widget body (excluding +/- buttons), else -1. */
     private int pedalAt(int guiX, int guiY) {
         if (!pedalboardMode) return -1;
         for (int i = 0; i < PedalData.PEDAL_COUNT; i++) {
-            int wx = OrganConsoleMenu.pedalX(i);
+            int wx = OrganConsoleMenu.pedalX(i, imageWidth);
             int wy = OrganConsoleMenu.PEDAL_AREA_TOP;
             if (guiX >= wx && guiX < wx + OrganConsoleMenu.PEDAL_W
                     && guiY >= wy && guiY < wy + OrganConsoleMenu.PEDAL_H)
@@ -308,20 +309,17 @@ public class OrganConsoleScreen extends AbstractSimiContainerScreen<OrganConsole
         return -1;
     }
 
-    /** Returns +1 or -1 if the click is on a +/- button for a pedal, 0 otherwise. */
     private int pedalButtonAt(int guiX, int guiY) {
         if (!pedalboardMode) return 0;
         for (int i = 0; i < PedalData.PEDAL_COUNT; i++) {
-            int wx = OrganConsoleMenu.pedalX(i);
+            int wx = OrganConsoleMenu.pedalX(i, imageWidth);
             int wy = OrganConsoleMenu.PEDAL_AREA_TOP;
             int wh = OrganConsoleMenu.PEDAL_H;
             int btnY = wy + wh - 14;
             if (guiY < btnY || guiY >= btnY + 10) continue;
-            // "-" button
-            if (guiX >= wx + 2 && guiX < wx + 12) return -(i + 1) * 10; // encode pedal index as negative
-            // "+" button
+            if (guiX >= wx + 2 && guiX < wx + 12) return -(i + 1) * 10;
             int plusX = wx + OrganConsoleMenu.PEDAL_W - 12;
-            if (guiX >= plusX && guiX < plusX + 10) return (i + 1) * 10; // positive = plus
+            if (guiX >= plusX && guiX < plusX + 10) return (i + 1) * 10;
         }
         return 0;
     }

@@ -90,6 +90,7 @@ public class OrganConsoleBlockEntity extends SmartBlockEntity implements MenuPro
     public boolean menuPedalboardMode = false;
     public int menuManualCount = 1;
     public int menuPedalIndex = 0;
+    public boolean menuHasPedalboard = false;
 
     public OrganConsoleBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -220,10 +221,12 @@ public class OrganConsoleBlockEntity extends SmartBlockEntity implements MenuPro
     public void openMenu(ServerPlayer player, boolean pedalboardMode) {
         menuPedalboardMode = pedalboardMode;
         menuManualCount = manualCount;
+        menuHasPedalboard = hasPedalboard;
         NetworkHooks.openScreen(player, this, buffer -> {
             sendToMenu(buffer);
             buffer.writeBoolean(pedalboardMode);
             buffer.writeVarInt(manualCount);
+            buffer.writeBoolean(hasPedalboard);
         });
     }
 

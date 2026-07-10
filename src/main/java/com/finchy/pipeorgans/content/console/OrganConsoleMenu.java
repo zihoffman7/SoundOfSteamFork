@@ -27,14 +27,17 @@ public class OrganConsoleMenu extends MenuBase<OrganConsoleBlockEntity> {
     // -----------------------------------------------------------------------
     // Pedal widgets (pedalboard mode only) — rendered above the filter row
     // -----------------------------------------------------------------------
-    public static final int PEDAL_AREA_TOP = 18;     // y of the pedal widget row
-    public static final int PEDAL_W = 52;            // width of each pedal widget
-    public static final int PEDAL_H = 36;            // height of each pedal widget
-    public static final int PEDAL_GAP = 4;           // gap between pedals
-    public static final int PEDAL_X0 = MARGIN;       // x of first pedal widget
+    public static final int PEDAL_AREA_TOP = 18;
+    public static final int PEDAL_W = 52;
+    public static final int PEDAL_H = 36;
+    public static final int PEDAL_GAP = 4;
+    private static final int PEDAL_COUNT = PedalData.PEDAL_COUNT; // 2
+    public static final int PEDALS_TOTAL_W = PEDAL_COUNT * PEDAL_W + (PEDAL_COUNT - 1) * PEDAL_GAP;
 
-    public static int pedalX(int index) {
-        return PEDAL_X0 + index * (PEDAL_W + PEDAL_GAP);
+    /** X of the i-th pedal widget, centered within guiWidth. */
+    public static int pedalX(int index, int guiW) {
+        int startX = (guiW - PEDALS_TOTAL_W) / 2;
+        return startX + index * (PEDAL_W + PEDAL_GAP);
     }
 
     // Total height occupied by pedal widgets row
@@ -67,6 +70,7 @@ public class OrganConsoleMenu extends MenuBase<OrganConsoleBlockEntity> {
     private static final int PLAYER_SLOTS = 36;
 
     private boolean pedalboardMode;
+    private boolean hasPedalboard;
     private int manualCount;
     private int[] ghostSlotIndices;
 
@@ -84,17 +88,10 @@ public class OrganConsoleMenu extends MenuBase<OrganConsoleBlockEntity> {
         return new OrganConsoleMenu(AllMenuTypes.ORGAN_CONSOLE_MENU.get(), id, inv, be);
     }
 
-    public boolean isPedalboardMode() {
-        return pedalboardMode;
-    }
-
-    public OrganConsoleBlockEntity getConsole() {
-        return contentHolder;
-    }
-
-    public int getManualCount() {
-        return manualCount;
-    }
+    public boolean isPedalboardMode() { return pedalboardMode; }
+    public boolean isHasPedalboard()   { return hasPedalboard; }
+    public OrganConsoleBlockEntity getConsole() { return contentHolder; }
+    public int getManualCount() { return manualCount; }
 
     // Layout helpers
     public static int keyboardRows(boolean pedalboard, int manualCount) {
@@ -141,33 +138,37 @@ public class OrganConsoleMenu extends MenuBase<OrganConsoleBlockEntity> {
         return keyCountFor(pedalboard) * keyWidth(pedalboard);
     }
 
-    public static int contentBottom(boolean pedalboard, int manualCount) {
+    /** Bottom of content area. If pedalboard mode with no keyboard, ends after pedal row. */
+    public static int contentBottom(boolean pedalboard, boolean hasPedalboard, int manualCount) {
+        if (pedalboard && !hasPedalboard)
+            return PEDAL_AREA_TOP + PEDAL_ROW_H;
         return keyboardsTop(pedalboard) + keyboardRows(pedalboard, manualCount) * ROW_PITCH;
     }
 
-    public static int playerInvY(boolean pedalboard, int manualCount) {
-        return contentBottom(pedalboard, manualCount) + INV_GAP;
+    public static int playerInvY(boolean pedalboard, boolean hasPedalboard, int manualCount) {
+        return contentBottom(pedalboard, hasPedalboard, manualCount) + INV_GAP;
     }
 
-    public static int filtersWidth(boolean pedalboard, int manualCount) {
+    public static int filtersWidth(boolean pedalboard, boolean hasPedalboard, int manualCount) {
+        if (pedalboard && !hasPedalboard) return 0;
         return emitFilterCount(pedalboard, manualCount) * FILTER_PITCH - GROUP_GAP;
     }
 
-    public static int guiWidth(boolean pedalboard, int manualCount) {
-        int byKeyboard = KEYBOARD_X + keyboardWidth(pedalboard) + MARGIN;
-        int byFilters = FILTERS_X + filtersWidth(pedalboard, manualCount) + MARGIN;
-        return Math.max(Math.max(byKeyboard, byFilters), PLAYER_INV_W + 2 * MARGIN);
+    public static int guiWidth(boolean pedalboard, boolean hasPedalboard, int manualCount) {
+        int byKeyboard = (pedalboard && !hasPedalboard) ? 0 : KEYBOARD_X + keyboardWidth(pedalboard) + MARGIN;
+        int byFilters = FILTERS_X + filtersWidth(pedalboard, hasPedalboard, manualCount) + MARGIN;
+        int byPedals = pedalboard ? MARGIN + PEDALS_TOTAL_W + MARGIN : 0;
+        return Math.max(Math.max(Math.max(byKeyboard, byFilters), PLAYER_INV_W + 2 * MARGIN), byPedals);
     }
 
-    public static int guiHeight(boolean pedalboard, int manualCount) {
-        return playerInvY(pedalboard, manualCount) + PLAYER_INV_H + MARGIN;
+    public static int guiHeight(boolean pedalboard, boolean hasPedalboard, int manualCount) {
+        return playerInvY(pedalboard, hasPedalboard, manualCount) + PLAYER_INV_H + MARGIN;
     }
 
-    public static int playerInvX(boolean pedalboard, int manualCount) {
-        return (guiWidth(pedalboard, manualCount) - PLAYER_INV_W) / 2;
+    public static int playerInvX(boolean pedalboard, boolean hasPedalboard, int manualCount) {
+        return (guiWidth(pedalboard, hasPedalboard, manualCount) - PLAYER_INV_W) / 2;
     }
 
-    // MenuBase wiring
     @Override
     protected OrganConsoleBlockEntity createOnClient(FriendlyByteBuf extraData) {
         ClientLevel world = Minecraft.getInstance().level;
@@ -176,6 +177,7 @@ public class OrganConsoleMenu extends MenuBase<OrganConsoleBlockEntity> {
             console.readClient(extraData.readNbt());
             console.menuPedalboardMode = extraData.readBoolean();
             console.menuManualCount = extraData.readVarInt();
+            console.menuHasPedalboard = extraData.readBoolean();
             return console;
         }
         return null;
@@ -186,21 +188,25 @@ public class OrganConsoleMenu extends MenuBase<OrganConsoleBlockEntity> {
         ghostInventory = contentHolder.getFilterInventory();
         pedalboardMode = contentHolder.menuPedalboardMode;
         manualCount = contentHolder.menuManualCount;
+        hasPedalboard = contentHolder.menuHasPedalboard;
     }
 
     @Override
     protected void addSlots() {
-        addPlayerSlots(playerInvX(pedalboardMode, manualCount), playerInvY(pedalboardMode, manualCount));
+        addPlayerSlots(
+                playerInvX(pedalboardMode, hasPedalboard, manualCount),
+                playerInvY(pedalboardMode, hasPedalboard, manualCount));
 
         List<Integer> ghost = new ArrayList<>();
-        int groups = emitFilterCount(pedalboardMode, manualCount);
-        for (int i = 0; i < groups; i++) {
-            int section = sectionForRow(pedalboardMode, i);
-            addSlot(new SlotItemHandler(ghostInventory, OrganConsoleBlockEntity.divisionSlot(section),
-                    filterBgX(i) + 1, filterRowY(pedalboardMode) + 1));
-            ghost.add(OrganConsoleBlockEntity.divisionSlot(section));
+        if (!pedalboardMode || hasPedalboard) {
+            int groups = emitFilterCount(pedalboardMode, manualCount);
+            for (int i = 0; i < groups; i++) {
+                int section = sectionForRow(pedalboardMode, i);
+                addSlot(new SlotItemHandler(ghostInventory, OrganConsoleBlockEntity.divisionSlot(section),
+                        filterBgX(i) + 1, filterRowY(pedalboardMode) + 1));
+                ghost.add(OrganConsoleBlockEntity.divisionSlot(section));
+            }
         }
-
         ghostSlotIndices = ghost.stream().mapToInt(Integer::intValue).toArray();
     }
 

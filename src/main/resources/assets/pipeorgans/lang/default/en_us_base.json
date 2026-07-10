@@ -18,7 +18,7 @@
   "gui.pipeorgans.pedal_edit.pedal": "Pedal %1$s",
   "gui.pipeorgans.pedal_edit.name": "Name",
   "gui.pipeorgans.pedal_edit.name_hint": "Box Name",
-  "gui.pipeorgans.pedal_edit.frequency_pair": "Enclosed Box Identifier",
+  "gui.pipeorgans.pedal_edit.frequency_pair": "Box Filter",
   "gui.pipeorgans.pedal_edit.save": "Back",
 
   "gui.pipeorgans.stop.main": "Stop Manager",

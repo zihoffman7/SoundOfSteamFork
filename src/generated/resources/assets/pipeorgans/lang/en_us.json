@@ -123,7 +123,7 @@
   "gui.pipeorgans.organ_console.pedalboard_division": "Pedalboard Division",
   "gui.pipeorgans.organ_console.pedalboard_filter": "Pedalboard Filter",
   "gui.pipeorgans.organ_console.receive": "Receive Filter",
-  "gui.pipeorgans.pedal_edit.frequency_pair": "Box Frequency",
+  "gui.pipeorgans.pedal_edit.frequency_pair": "Enclosed Box Identifier",
   "gui.pipeorgans.pedal_edit.name": "Name",
   "gui.pipeorgans.pedal_edit.name_hint": "Box Name",
   "gui.pipeorgans.pedal_edit.pedal": "Pedal %1$s",

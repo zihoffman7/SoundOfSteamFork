@@ -267,34 +267,40 @@ public class OrganConsoleScreen extends AbstractSimiContainerScreen<OrganConsole
         graphics.fill(wx + ww - 1, wy, wx + ww, wy + wh, COLOR_PEDAL_BORDER);
 
         PedalData.Pedal pedal = console.getPedalData().getPedal(index);
-        boolean hasName = !pedal.name.isEmpty();
-        String name = hasName ? pedal.name : "Swell " + (index + 1);
-        int nameColor = hasName ? COLOR_PEDAL_NAME : 0xFF666666; // grey if placeholder
+        boolean unused = pedal.name.isEmpty();
 
-        // Name (truncated)
-        String truncName = font.width(name) > ww - 8 ? font.plainSubstrByWidth(name, ww - 10) + "…" : name;
-        graphics.drawString(font, truncName, wx + 4, wy + 4, nameColor, false);
+        // Name / "Unused" label
+        String label = unused ? "Unused" : pedal.name;
+        int labelColor = unused ? 0xFF555555 : COLOR_PEDAL_NAME;
+        String truncLabel = font.width(label) > ww - 8 ? font.plainSubstrByWidth(label, ww - 10) + "…" : label;
+        graphics.drawString(font, truncLabel, wx + 4, wy + 4, labelColor, false);
 
-        // Position: - [pos] +
-        int pos = pedal.position;
+        // Position display — always centered
         int btnY = wy + wh - 14;
-        int btnW = 10;
+        String posStr = String.valueOf(pedal.position);
+        int posStrW = font.width(posStr);
 
-        // "-" button
-        boolean minusHov = mouseX >= wx + 2 && mouseX < wx + 2 + btnW && mouseY >= btnY && mouseY < btnY + 10;
-        graphics.fill(wx + 2, btnY, wx + 2 + btnW, btnY + 10, minusHov ? COLOR_BTN_HOVER : COLOR_BTN_BG);
-        graphics.drawString(font, "-", wx + 4, btnY + 1, COLOR_PEDAL_POS, false);
+        if (unused) {
+            // Locked at 0, centered, no buttons
+            graphics.drawString(font, posStr, wx + (ww - posStrW) / 2, btnY + 1, 0xFF444444, false);
+        } else {
+            int btnW = 10;
 
-        // Position number
-        String posStr = String.valueOf(pos);
-        int posX = wx + 14;
-        graphics.drawString(font, posStr, posX, btnY + 1, COLOR_PEDAL_POS, false);
+            // "-" button
+            boolean minusHov = mouseX >= wx + 2 && mouseX < wx + 2 + btnW && mouseY >= btnY && mouseY < btnY + 10;
+            graphics.fill(wx + 2, btnY, wx + 2 + btnW, btnY + 10, minusHov ? COLOR_BTN_HOVER : COLOR_BTN_BG);
+            graphics.drawString(font, "-", wx + 4, btnY + 1, COLOR_PEDAL_POS, false);
 
-        // "+" button
-        int plusX = wx + ww - 2 - btnW;
-        boolean plusHov = mouseX >= plusX && mouseX < plusX + btnW && mouseY >= btnY && mouseY < btnY + 10;
-        graphics.fill(plusX, btnY, plusX + btnW, btnY + 10, plusHov ? COLOR_BTN_HOVER : COLOR_BTN_BG);
-        graphics.drawString(font, "+", plusX + 2, btnY + 1, COLOR_PEDAL_POS, false);
+            // Centered position number between the two buttons
+            int numX = wx + (ww - posStrW) / 2;
+            graphics.drawString(font, posStr, numX, btnY + 1, COLOR_PEDAL_POS, false);
+
+            // "+" button
+            int plusX = wx + ww - 2 - btnW;
+            boolean plusHov = mouseX >= plusX && mouseX < plusX + btnW && mouseY >= btnY && mouseY < btnY + 10;
+            graphics.fill(plusX, btnY, plusX + btnW, btnY + 10, plusHov ? COLOR_BTN_HOVER : COLOR_BTN_BG);
+            graphics.drawString(font, "+", plusX + 2, btnY + 1, COLOR_PEDAL_POS, false);
+        }
     }
 
     private int pedalAt(int guiX, int guiY) {
@@ -312,6 +318,8 @@ public class OrganConsoleScreen extends AbstractSimiContainerScreen<OrganConsole
     private int pedalButtonAt(int guiX, int guiY) {
         if (!pedalboardMode) return 0;
         for (int i = 0; i < PedalData.PEDAL_COUNT; i++) {
+            // Unused pedals have no buttons
+            if (console.getPedalData().getPedal(i).name.isEmpty()) continue;
             int wx = OrganConsoleMenu.pedalX(i, imageWidth);
             int wy = OrganConsoleMenu.PEDAL_AREA_TOP;
             int wh = OrganConsoleMenu.PEDAL_H;

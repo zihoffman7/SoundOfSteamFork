@@ -42,8 +42,10 @@ public class PedalConfigPacket extends SimplePacketBase {
             if (player == null)
                 return;
             BlockEntity be = player.level().getBlockEntity(consolePos);
-            if (be instanceof OrganConsoleBlockEntity console)
+            if (be instanceof OrganConsoleBlockEntity console) {
                 console.setPedalConfig(pedalIndex, pedal);
+                console.openMenu(player, true); // reopen pedalboard GUI
+            }
         });
         return true;
     }

@@ -28,8 +28,8 @@ public class PedalData {
         private ItemStack freqA = ItemStack.EMPTY;
         private ItemStack freqB = ItemStack.EMPTY;
 
-        // Runtime only — not saved to disk, synced via notifyUpdate()
-        public transient int position = 0;
+        // Runtime only — synced via notifyUpdate(), persisted to disk
+        public int position = 0;
 
         public Pedal() {}
 
@@ -42,6 +42,7 @@ public class PedalData {
         public CompoundTag toNbt() {
             CompoundTag tag = new CompoundTag();
             tag.putString("Name", name);
+            tag.putInt("Position", position);
             CompoundTag a = new CompoundTag(); freqA.save(a); tag.put("FreqA", a);
             CompoundTag b = new CompoundTag(); freqB.save(b); tag.put("FreqB", b);
             return tag;
@@ -50,6 +51,7 @@ public class PedalData {
         public static Pedal fromNbt(CompoundTag tag) {
             Pedal pedal = new Pedal();
             pedal.name = tag.getString("Name");
+            pedal.position = tag.getInt("Position");
             if (tag.contains("FreqA")) pedal.freqA = ItemStack.of(tag.getCompound("FreqA"));
             if (tag.contains("FreqB")) pedal.freqB = ItemStack.of(tag.getCompound("FreqB"));
             return pedal;

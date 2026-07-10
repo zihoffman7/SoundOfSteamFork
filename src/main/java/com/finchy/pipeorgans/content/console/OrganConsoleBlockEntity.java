@@ -511,13 +511,7 @@ public class OrganConsoleBlockEntity extends SmartBlockEntity implements MenuPro
         if (tag.contains("Filters"))
             filterInventory.deserializeNBT(tag.getCompound("Filters"));
         if (tag.contains("PedalData")) {
-            // Preserve runtime positions across reads
-            int[] savedPositions = new int[PedalData.PEDAL_COUNT];
-            for (int i = 0; i < PedalData.PEDAL_COUNT; i++)
-                savedPositions[i] = pedalData.getPedal(i).position;
             pedalData = PedalData.fromNbt(tag.getCompound("PedalData"));
-            for (int i = 0; i < PedalData.PEDAL_COUNT; i++)
-                pedalData.getPedal(i).position = savedPositions[i];
         }
         if (clientPacket) {
             long[] bits = tag.getLongArray("ReceivedBits");

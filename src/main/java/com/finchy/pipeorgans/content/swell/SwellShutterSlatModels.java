@@ -79,7 +79,12 @@ public final class SwellShutterSlatModels {
         List<BakedQuad>[] perSlat = new List[SLAT_COUNT];
         for (int i = 0; i < SLAT_COUNT; i++) perSlat[i] = new ArrayList<>();
         for (BakedQuad q : all) {
-            int idx = net.minecraft.util.Mth.clamp((int) (centroidX(q) * SLAT_COUNT), 0, SLAT_COUNT - 1);
+            // Nudge by the face normal so faces sitting exactly on a slat boundary
+            // (x = 0.25, 0.5, 0.75) are assigned to the slat they actually belong to:
+            // an east (+X) face belongs to the slat on its left, a west (-X) face to
+            // the slat on its right.
+            float nudged = centroidX(q) - q.getDirection().getStepX() * 0.001f;
+            int idx = net.minecraft.util.Mth.clamp((int) (nudged * SLAT_COUNT), 0, SLAT_COUNT - 1);
             perSlat[idx].add(q);
         }
         return perSlat;

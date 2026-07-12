@@ -1,5 +1,6 @@
 package com.finchy.pipeorgans.content.swell;
 
+import com.finchy.pipeorgans.content.pipes.generic.GenericPipeBlock;
 import com.finchy.pipeorgans.content.pipes.generic.GenericPipeBlockEntity;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
@@ -18,6 +19,9 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+
+import it.unimi.dsi.fastutil.longs.LongArrayFIFOQueue;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 
 import java.util.*;
 
@@ -106,59 +110,88 @@ public class SwellControlBlockEntity extends SmartBlockEntity
     private void runScan() {
         if (!(level instanceof ServerLevel serverLevel)) return;
 
-        Set<BlockPos>   visited   = new HashSet<>();
-        Queue<BlockPos> queue     = new ArrayDeque<>();
-        List<BlockPos>  shutters  = new ArrayList<>();
-        List<BlockPos>  pipes     = new ArrayList<>();
+        // Long-keyed sets/queue + reused mutable positions: the scan allocates almost
+        // nothing and never queries block entities in the hot loop (pipes are detected
+        // from the block class we already fetched).
+        LongOpenHashSet    visited  = new LongOpenHashSet();
+        LongOpenHashSet    interior = new LongOpenHashSet();
+        LongArrayFIFOQueue queue    = new LongArrayFIFOQueue();
+        List<BlockPos>     shutters = new ArrayList<>();
+        List<BlockPos>     pipes    = new ArrayList<>();
         int interiorCount = 0;
 
-        // Seed from 6 faces, skip SwellBoxBlock/shutter (they are the wall)
+        BlockPos.MutableBlockPos cur  = new BlockPos.MutableBlockPos();
+        BlockPos.MutableBlockPos next = new BlockPos.MutableBlockPos();
+
+        // Seed from the control's 6 faces, skipping wall blocks (box / shutter).
         for (Direction dir : Direction.values()) {
-            BlockPos n = worldPosition.relative(dir);
-            if (!serverLevel.isLoaded(n)) continue;
-            Block nb = serverLevel.getBlockState(n).getBlock();
-            if (!(nb instanceof SwellBoxBlock) && !(nb instanceof SwellShutterBlock)
-                    && visited.add(n)) queue.add(n);
+            next.setWithOffset(worldPosition, dir);
+            if (!serverLevel.isLoaded(next)) continue;
+            Block nb = serverLevel.getBlockState(next).getBlock();
+            if (!(nb instanceof SwellBoxBlock) && !(nb instanceof SwellShutterBlock)) {
+                long key = next.asLong();
+                if (visited.add(key)) queue.enqueue(key);
+            }
         }
 
         boolean hitCap = false;
 
         while (!queue.isEmpty()) {
             if (visited.size() > scanCap) { hitCap = true; break; }
-            BlockPos pos = queue.poll();
-            if (!serverLevel.isLoaded(pos)) { hitCap = true; break; }
+            long key = queue.dequeueLong();
+            cur.set(BlockPos.getX(key), BlockPos.getY(key), BlockPos.getZ(key));
+            if (!serverLevel.isLoaded(cur)) { hitCap = true; break; }
 
-            BlockState state = serverLevel.getBlockState(pos);
-            Block      block = state.getBlock();
+            Block block = serverLevel.getBlockState(cur).getBlock();
 
             if (block instanceof SwellShutterBlock) {
-                shutters.add(pos.immutable());
+                shutters.add(cur.immutable());
                 continue; // wall boundary
             }
             if (block instanceof SwellBoxBlock) {
                 continue; // wall boundary
             }
 
-            // Everything else: traverse through
-            BlockEntity be = serverLevel.getBlockEntity(pos);
-            if (be instanceof GenericPipeBlockEntity) pipes.add(pos.immutable());
+            // Interior block. Detect pipes cheaply by block class — no getBlockEntity.
+            interior.add(key);
+            if (block instanceof GenericPipeBlock) pipes.add(cur.immutable());
             interiorCount++;
 
             for (Direction dir : Direction.values()) {
-                BlockPos n = pos.relative(dir);
-                if (visited.add(n)) queue.add(n);
+                next.setWithOffset(cur, dir);
+                long nkey = next.asLong();
+                if (visited.add(nkey)) queue.enqueue(nkey);
             }
         }
 
         boolean foundHole = hitCap;
 
-        this.shutterCount   = shutters.size();
+        // Keep only "wall" shutters — those on the outside of the box. A wall shutter
+        // has at least one face exposed to the exterior (a neighbour that is neither
+        // part of the interior fill nor another swell box/shutter). Shutters placed
+        // floating inside the box are surrounded by interior blocks and are ignored.
+        List<BlockPos> wallShutters = new ArrayList<>();
+        for (BlockPos sp : shutters) {
+            boolean exposed = false;
+            for (Direction dir : Direction.values()) {
+                next.setWithOffset(sp, dir);
+                if (interior.contains(next.asLong())) continue;      // faces the inside
+                Block nb = serverLevel.getBlockState(next).getBlock();
+                if (!(nb instanceof SwellBoxBlock) && !(nb instanceof SwellShutterBlock)) {
+                    exposed = true;                                   // faces the exterior
+                    break;
+                }
+            }
+            if (exposed) wallShutters.add(sp);
+        }
+
+        this.shutterCount   = wallShutters.size();
         this.interiorVolume = interiorCount;
         this.hasHoles       = foundHole;
 
-        // Cache shutter positions so a signal change can re-apply openness cheaply.
+        // Cache the wall shutter positions so a signal change can re-apply openness cheaply.
         cachedShutters.clear();
-        cachedShutters.addAll(shutters);
+        cachedShutters.addAll(wallShutters);
 
         // Diff the tracked pipe set: drop the factor from pipes that are no longer enclosed.
         Set<BlockPos> newPipeSet = new HashSet<>(pipes);

@@ -37,6 +37,9 @@
     "pipeorgans:vox_celeste_extension",
     "pipeorgans:vox_humana",
     "pipeorgans:vox_humana_extension",
-    "pipeorgans:note_link"
+    "pipeorgans:note_link",
+    "pipeorgans:swell_shutter",
+    "pipeorgans:swell_control",
+    "pipeorgans:swell_box"
   ]
 }

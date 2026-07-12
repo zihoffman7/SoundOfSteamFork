@@ -1,4 +1,4 @@
-// 1.20.1	2026-06-30T20:08:39.274668	Registrate Provider for pipeorgans [Recipes, Advancements, Loot Tables, Tags (blocks), Tags (items), Tags (fluids), Tags (entity_types), Blockstates, Item models, Lang (en_us/en_ud)]
+// 1.20.1	2026-07-12T10:03:24.185481	Registrate Provider for pipeorgans [Recipes, Advancements, Loot Tables, Tags (blocks), Tags (items), Tags (fluids), Tags (entity_types), Blockstates, Item models, Lang (en_us/en_ud)]
 8e39d8877707a62ab2683b5612b9a85b020e09bf assets/pipeorgans/blockstates/base.json
 c746142a5971f7d9610400061ae6db7288f39cc5 assets/pipeorgans/blockstates/bassoon.json
 0f7ac7604f0fee26a230e70f6419cb10df907237 assets/pipeorgans/blockstates/bassoon_extension.json
@@ -35,6 +35,8 @@ ac7c65c8d0214be6aee84606ca2b68618eb0ba60 assets/pipeorgans/blockstates/rohrflote
 38f1fef910801f9fe854295dae1599955cfad91d assets/pipeorgans/blockstates/roll_puncher.json
 e8d28928d909a9453990ed1204dc4e3dd05c74ac assets/pipeorgans/blockstates/subbass.json
 da371c8e3d4f43fabfdf13dfe4470eac44f13e96 assets/pipeorgans/blockstates/subbass_extension.json
+e4807da8f761a7fa2d3d4ed58fb971c92cf0399f assets/pipeorgans/blockstates/swell_box.json
+80d51f7e3514e45509956b2ac4bbd87a67a05cc9 assets/pipeorgans/blockstates/swell_shutter.json
 ba11d03fdf7115a9e16eae35c28f5c5e2e7cb3aa assets/pipeorgans/blockstates/tierce.json
 e0e732b532e225f8735b79bc45c01fd266442585 assets/pipeorgans/blockstates/tierce_extension.json
 b9a7685b374a43888f073de189ef683402503184 assets/pipeorgans/blockstates/tracker_bar.json
@@ -48,8 +50,8 @@ ad18c8d11c01f8d723d551cf7370a0951b487c9f assets/pipeorgans/blockstates/vox_human
 a474fdb57fa8df1514d2f542958d9d5a18a4e638 assets/pipeorgans/blockstates/vox_humana_extension.json
 e2a66bfca8771ebaf42a85daf74ee2eac92cc060 assets/pipeorgans/blockstates/windchest.json
 7d2b2a163210c68e8cae4dfaa23748404230334b assets/pipeorgans/blockstates/windchest_master.json
-26a60a2a69a24816dcb353e6d1e54c2b781a6e14 assets/pipeorgans/lang/en_ud.json
-4569c404f8d200894456f7dfb2786188b91a92b7 assets/pipeorgans/lang/en_us.json
+821750d042988ce505974db3435fbb79978c7306 assets/pipeorgans/lang/en_ud.json
+e88d31b206cebbe00793316d35241b4c5d86d758 assets/pipeorgans/lang/en_us.json
 c5f754282449380c27e6b04ae291520a0b061373 assets/pipeorgans/models/block/base/base_floor_powered.json
 a7d69e8a06fc232cbc074e3ea3a52c228d55b27a assets/pipeorgans/models/block/base/base_wall_powered.json
 6377819f02fb199c0ae28c0e0aac4cafbf2e2ce3 assets/pipeorgans/models/item/base.json
@@ -80,6 +82,9 @@ f06aa9ed786678c69f2cc3bf62633bd0cf31e274 assets/pipeorgans/models/item/prestant.
 8c8f3914193a32272e667643d445d81eae3a5aff assets/pipeorgans/models/item/rohrflote.json
 978f8fb283fe54b9566765e442b310e92261e11b assets/pipeorgans/models/item/roll_puncher.json
 2121ff8597c4c418ea4beed8b819a11bcfd8f45f assets/pipeorgans/models/item/subbass.json
+08565bb9afd09acd5059c44e602b016bdd8046c3 assets/pipeorgans/models/item/swell_box.json
+ac1cb1532c61b405ff05adb8b53f8cd1d95e628d assets/pipeorgans/models/item/swell_control.json
+3f2e8f6961d05f169a59bc3c339d25d213f378be assets/pipeorgans/models/item/swell_shutter.json
 00bd5de8598f0ab78676be06fa442702c76a75f5 assets/pipeorgans/models/item/tierce.json
 ea82c73b509f78ca1adbd272193abb47ebb73d51 assets/pipeorgans/models/item/tracker_bar.json
 9ea49b7e8ee26f953f090106794c21422f42ed0c assets/pipeorgans/models/item/trompette.json
@@ -90,9 +95,9 @@ b6df392761171b637aa88ceda8ec83c6c7d33fea assets/pipeorgans/models/item/viola.jso
 cad79ef5b6c9acb4a117968fcfc308d5e6afe219 assets/pipeorgans/models/item/windchest.json
 8812a109956dd729d31ea054295caaea72ae1aeb assets/pipeorgans/models/item/windchest_master.json
 503d3026ca3dd83f47d8479d8130763f20ed079f data/create/tags/blocks/brittle.json
-503d3026ca3dd83f47d8479d8130763f20ed079f data/create/tags/blocks/safe_nbt.json
-047c506150f6106a2016c665e1126e20ab42bc0c data/minecraft/tags/blocks/mineable/axe.json
-6be84e32e72188a2941882d0dc26cfd78c921e1b data/minecraft/tags/blocks/mineable/pickaxe.json
+01b3af6bafb610aacc37a30a64858fe3e2312b9b data/create/tags/blocks/safe_nbt.json
+f9acee5e01afc0e2801a852221cce3bd985ccefd data/minecraft/tags/blocks/mineable/axe.json
+078bdf6e638123f6998b08cc9ad7f7c68495d8c2 data/minecraft/tags/blocks/mineable/pickaxe.json
 3fdca088e2d2788a5f5413ffcb012570294611f0 data/pipeorgans/loot_tables/blocks/base.json
 aa6ced65a3cc6e5669fba58d97a14a73e83f398e data/pipeorgans/loot_tables/blocks/bassoon.json
 0d5a98452c8eb42028fa82eae67565ceb7fdf5c7 data/pipeorgans/loot_tables/blocks/bassoon_extension.json
@@ -129,6 +134,9 @@ bd2f20443f95cd55e86f2d5287468445698fb269 data/pipeorgans/loot_tables/blocks/rohr
 db7785c09dfa9a049dd4e519c9baf99965259cef data/pipeorgans/loot_tables/blocks/roll_puncher.json
 cc717ef424a45fe97925b053770eda74d60d00d8 data/pipeorgans/loot_tables/blocks/subbass.json
 8a9ad9a67bbf8876dcd45abe58d60a0dbf52311f data/pipeorgans/loot_tables/blocks/subbass_extension.json
+6a1f0fc6984c84518360f6079a9656f5f60cf5da data/pipeorgans/loot_tables/blocks/swell_box.json
+c0c836c2b36c56e4a4ba6cc60da629a4922bf963 data/pipeorgans/loot_tables/blocks/swell_control.json
+7c4c535a1f0ff9f6961f4702280389778f49ccb1 data/pipeorgans/loot_tables/blocks/swell_shutter.json
 5b214e4aaa0a84709a7dbbafca9cf10b1ac0d2a9 data/pipeorgans/loot_tables/blocks/tierce.json
 69019c5afd2458c444c134333c2f6f69713ea430 data/pipeorgans/loot_tables/blocks/tierce_extension.json
 fb407b087242a82ab939d2a1ae8f2985daef09b6 data/pipeorgans/loot_tables/blocks/tracker_bar.json

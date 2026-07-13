@@ -1,11 +1,9 @@
 package com.finchy.pipeorgans;
 
-import com.finchy.pipeorgans.init.AllBlocks;
 import com.finchy.pipeorgans.init.AllPartialModels;
 import com.finchy.pipeorgans.init.AllParticleTypes;
 import com.finchy.pipeorgans.midi.client.ClientMidiFileLoader;
 import com.finchy.pipeorgans.ponder.POPonderPlugin;
-import com.simibubi.create.CreateClient;
 import net.createmod.ponder.foundation.PonderIndex;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;

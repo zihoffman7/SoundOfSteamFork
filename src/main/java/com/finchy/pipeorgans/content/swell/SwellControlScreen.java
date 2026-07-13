@@ -40,12 +40,11 @@ public class SwellControlScreen extends AbstractSimiContainerScreen<SwellControl
     private void adjustCap(boolean increase) {
         int current = menu.getControlBE().getScanCap();
         int step;
-        if (current < 100)       step = 20;
-        else if (current < 400)  step = 50;
-        else if (current < 1000) step = 100;
-        else if (current < 2000) step = 200;
-        else if (current < 4000) step = 400;
-        else                     step = 800;
+        if (current < 500) step = 100;
+        else if (current < 2000) step = 500;
+        else if (current < 5000) step = 1000;
+        else if (current < 15000) step = 2500;
+        else step = 5000;
 
         int newCap = increase
                 ? current + step

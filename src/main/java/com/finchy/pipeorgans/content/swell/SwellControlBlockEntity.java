@@ -27,11 +27,11 @@ import java.util.*;
 
 public class SwellControlBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation, MenuProvider {
 
-    public static final int DEFAULT_CAP = 4000;
+    public static final int DEFAULT_CAP = 5000;
 
     // Persistent
     private int signalLevel = 0;
-    private int  scanCap = DEFAULT_CAP;
+    private int scanCap = DEFAULT_CAP;
     private boolean goggles = false;
 
     // Client-synced display state
@@ -64,7 +64,7 @@ public class SwellControlBlockEntity extends SmartBlockEntity implements IHaveGo
         scanPending = true;
     }
 
-    public int  getScanCap() { return scanCap; }
+    public int getScanCap() { return scanCap; }
 
     public void setScanCap(int cap) {
         scanCap = Math.max(20, cap);
@@ -283,7 +283,7 @@ public class SwellControlBlockEntity extends SmartBlockEntity implements IHaveGo
     protected void read(CompoundTag tag, boolean clientPacket) {
         super.read(tag, clientPacket);
         signalLevel = tag.getInt("Signal");
-        scanCap = tag.contains("ScanCap") ? Math.max(64, tag.getInt("ScanCap")) : DEFAULT_CAP;
+        scanCap = tag.contains("ScanCap") ? Math.max(100, tag.getInt("ScanCap")) : DEFAULT_CAP;
         goggles = tag.getBoolean("Goggles");
         if (clientPacket) {
             shutterCount = tag.getInt("Shutters");

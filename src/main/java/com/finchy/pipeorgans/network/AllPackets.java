@@ -31,6 +31,15 @@ public enum AllPackets {
     SWELL_SCAN_CAP(SwellScanCapPacket.class, SwellScanCapPacket::new, PLAY_TO_SERVER),
     SWELL_RECALIBRATE(SwellRecalibratePacket.class, SwellRecalibratePacket::new, PLAY_TO_SERVER),
 
+    ORGAN_CONSOLE_NOTE(OrganConsoleNotePacket.class, OrganConsoleNotePacket::new, PLAY_TO_SERVER),
+    STOP_ACTION(StopActionPacket.class, StopActionPacket::new, PLAY_TO_SERVER),
+    COUPLER_ACTION(CouplerActionPacket.class, CouplerActionPacket::new, PLAY_TO_SERVER),
+    PISTON_ACTION(PistonActionPacket.class, PistonActionPacket::new, PLAY_TO_SERVER),
+    PEDAL_POSITION(PedalPositionPacket.class, PedalPositionPacket::new, PLAY_TO_SERVER),
+    PEDAL_CONFIG(PedalConfigPacket.class, PedalConfigPacket::new, PLAY_TO_SERVER),
+    OPEN_PEDAL_EDIT(OpenPedalEditPacket.class, OpenPedalEditPacket::new, PLAY_TO_SERVER),
+
+    
     // server to client
     CLIPBOARD_ASSISTED_PLACEMENT(ClipboardAssistedPlacementPacket.class, ClipboardAssistedPlacementPacket::new, PLAY_TO_CLIENT),
     REDSTONE_LINK_NETWORK_DEBUG_INFO(RedstoneLinkNetworkDebugInfoPacket.class, RedstoneLinkNetworkDebugInfoPacket::new, NetworkDirection.PLAY_TO_CLIENT);

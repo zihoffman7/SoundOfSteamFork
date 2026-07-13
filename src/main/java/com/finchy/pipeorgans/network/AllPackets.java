@@ -31,6 +31,9 @@ public enum AllPackets {
     STOP_ACTION(StopActionPacket.class, StopActionPacket::new, PLAY_TO_SERVER),
     COUPLER_ACTION(CouplerActionPacket.class, CouplerActionPacket::new, PLAY_TO_SERVER),
     PISTON_ACTION(PistonActionPacket.class, PistonActionPacket::new, PLAY_TO_SERVER),
+    PEDAL_POSITION(PedalPositionPacket.class, PedalPositionPacket::new, PLAY_TO_SERVER),
+    PEDAL_CONFIG(PedalConfigPacket.class, PedalConfigPacket::new, PLAY_TO_SERVER),
+    OPEN_PEDAL_EDIT(OpenPedalEditPacket.class, OpenPedalEditPacket::new, PLAY_TO_SERVER),
 
     
     // server to client
@@ -38,7 +41,7 @@ public enum AllPackets {
     REDSTONE_LINK_NETWORK_DEBUG_INFO(RedstoneLinkNetworkDebugInfoPacket.class, RedstoneLinkNetworkDebugInfoPacket::new, NetworkDirection.PLAY_TO_CLIENT);
 
     public static final ResourceLocation CHANNEL_NAME = PipeOrgans.asResource("main");
-    public static final int NETWORK_VERSION = 6;
+    public static final int NETWORK_VERSION = 7;
     public static final String NETWORK_VERSION_STR = String.valueOf(NETWORK_VERSION);
     private static SimpleChannel channel;
 

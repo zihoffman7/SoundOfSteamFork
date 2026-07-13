@@ -251,10 +251,9 @@ public class OrganConsoleBlock extends Block implements IBE<OrganConsoleBlockEnt
         if (be == null)
             return InteractionResult.PASS;
 
+        // Bottom half always opens pedalboard GUI (pedals are always present)
+        // Top half opens manuals GUI
         boolean pedalboardMode = state.getValue(HALF) == DoubleBlockHalf.LOWER;
-        if (pedalboardMode && !be.hasPedalboard())
-            return InteractionResult.SUCCESS; // nothing to open on the bottom until a pedalboard is added
-
         be.openMenu((ServerPlayer) player, pedalboardMode);
         return InteractionResult.SUCCESS;
     }

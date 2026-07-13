@@ -14,6 +14,12 @@
   "gui.pipeorgans.organ_console.pedalboard_filter": "Pedalboard Filter",
   "gui.pipeorgans.organ_console.manual_division": "Manual %1$s Division",
   "gui.pipeorgans.organ_console.pedalboard_division": "Pedalboard Division",
+  "gui.pipeorgans.pedal_edit.title": "Edit Pedal",
+  "gui.pipeorgans.pedal_edit.pedal": "Pedal %1$s",
+  "gui.pipeorgans.pedal_edit.name": "Name",
+  "gui.pipeorgans.pedal_edit.name_hint": "Box Name",
+  "gui.pipeorgans.pedal_edit.frequency_pair": "Box Filter",
+  "gui.pipeorgans.pedal_edit.save": "Back",
 
   "gui.pipeorgans.stop.main": "Stop Manager",
   "gui.pipeorgans.stop.edit": "Edit Stop",

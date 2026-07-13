@@ -1,0 +1,149 @@
+package com.finchy.pipeorgans.content.console;
+
+import com.finchy.pipeorgans.init.AllMenuTypes;
+import com.simibubi.create.foundation.gui.menu.MenuBase;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraftforge.items.ItemStackHandler;
+import net.minecraftforge.items.SlotItemHandler;
+
+public class PedalEditMenu extends MenuBase<OrganConsoleBlockEntity> {
+
+    public static final int MARGIN = 8;
+    public static final int TITLE_Y = 6;
+    public static final int NAME_LABEL_Y = 18;
+    public static final int NAME_BOX_Y = 28;
+    public static final int FREQ_LABEL_Y = 48;
+    public static final int FREQ_ROW_Y = 58;   // bg-top of the two freq slots
+    public static final int BUTTONS_Y  = FREQ_ROW_Y + 24; // save button row, clear of freq slots
+    public static final int SLOT_A_X = 8;
+    public static final int SLOT_B_X = 30;
+    public static final int FIELD_X = 8;
+    public static final int FIELD_W = 160;
+    public static final int BOX_H = 14;
+    public static final int PLAYER_INV_W = 162;
+    public static final int PLAYER_INV_H = 76;
+    public static final int INV_GAP = 10;
+    private static final int PLAYER_SLOTS = 36;
+    private static final int GHOST_SLOTS = 2;
+
+    public int menuPedalIndex;
+    public ItemStackHandler ghostInventory;
+
+    public PedalEditMenu(MenuType<?> type, int id, Inventory inv, FriendlyByteBuf extraData) {
+        super(type, id, inv, extraData);
+    }
+
+    public PedalEditMenu(MenuType<?> type, int id, Inventory inv, OrganConsoleBlockEntity be) {
+        super(type, id, inv, be);
+    }
+
+    public static PedalEditMenu create(int id, Inventory inv, OrganConsoleBlockEntity be, int pedalIndex) {
+        be.menuPedalIndex = pedalIndex;
+        return new PedalEditMenu(AllMenuTypes.PEDAL_EDIT_MENU.get(), id, inv, be);
+    }
+
+    public OrganConsoleBlockEntity getConsoleBE() { return contentHolder; }
+    public int getPedalIndex() { return menuPedalIndex; }
+
+    public static int contentBottom() { return BUTTONS_Y + 20; } // button (18) + 2px gap
+    public static int playerInvY()    { return contentBottom() + INV_GAP; }
+    public static int guiWidth()      { return Math.max(FIELD_X + FIELD_W + MARGIN, PLAYER_INV_W + 2 * MARGIN); }
+    public static int guiHeight()     { return playerInvY() + PLAYER_INV_H + MARGIN; }
+    public static int playerInvX()    { return (guiWidth() - PLAYER_INV_W) / 2; }
+
+    @Override
+    protected OrganConsoleBlockEntity createOnClient(FriendlyByteBuf extraData) {
+        ClientLevel world = Minecraft.getInstance().level;
+        BlockEntity be = world.getBlockEntity(extraData.readBlockPos());
+        if (be instanceof OrganConsoleBlockEntity console) {
+            console.readClient(extraData.readNbt());
+            console.menuPedalIndex = extraData.readVarInt();
+            return console;
+        }
+        return null;
+    }
+
+    @Override
+    protected void initAndReadInventory(OrganConsoleBlockEntity contentHolder) {
+        menuPedalIndex = contentHolder.menuPedalIndex;
+        PedalData.Pedal pedal = contentHolder.getPedalData().getPedal(menuPedalIndex);
+        ghostInventory = new ItemStackHandler(GHOST_SLOTS);
+        ghostInventory.setStackInSlot(0, pedal.getFreqA().copy());
+        ghostInventory.setStackInSlot(1, pedal.getFreqB().copy());
+    }
+
+    @Override
+    protected void addSlots() {
+        addPlayerSlots(playerInvX(), playerInvY());
+        addSlot(new SlotItemHandler(ghostInventory, 0, SLOT_A_X + 1, FREQ_ROW_Y + 1));
+        addSlot(new SlotItemHandler(ghostInventory, 1, SLOT_B_X + 1, FREQ_ROW_Y + 1));
+    }
+
+    @Override protected void saveData(OrganConsoleBlockEntity contentHolder) {}
+
+    @Override
+    public boolean canTakeItemForPickAll(ItemStack stack, Slot slot) {
+        return slot.container == playerInventory;
+    }
+
+    private boolean isGhostSlot(int slotId) {
+        return slotId >= PLAYER_SLOTS && slotId < PLAYER_SLOTS + GHOST_SLOTS;
+    }
+
+    @Override
+    public void clicked(int slotId, int dragType, ClickType clickType, Player player) {
+        if (!isGhostSlot(slotId)) { super.clicked(slotId, dragType, clickType, player); return; }
+        if (clickType == ClickType.THROW) return;
+        int idx = slotId - PLAYER_SLOTS;
+        ItemStack held = getCarried();
+        if (clickType == ClickType.CLONE) {
+            if (player.isCreative() && held.isEmpty()) {
+                ItemStack copy = ghostInventory.getStackInSlot(idx).copy();
+                if (!copy.isEmpty()) { copy.setCount(copy.getMaxStackSize()); setCarried(copy); }
+            }
+            return;
+        }
+        ItemStack filter = held.isEmpty() ? ItemStack.EMPTY : held.copy();
+        if (!filter.isEmpty()) filter.setCount(1);
+        ghostInventory.setStackInSlot(idx, filter);
+        getSlot(slotId).setChanged();
+    }
+
+    @Override
+    public ItemStack quickMoveStack(Player player, int index) {
+        Slot slot = this.slots.get(index);
+        if (!slot.hasItem()) return ItemStack.EMPTY;
+        if (isGhostSlot(index)) {
+            ghostInventory.setStackInSlot(index - PLAYER_SLOTS, ItemStack.EMPTY);
+            getSlot(index).setChanged();
+            return ItemStack.EMPTY;
+        }
+        for (int i = 0; i < GHOST_SLOTS; i++) {
+            if (ghostInventory.getStackInSlot(i).isEmpty()) {
+                ItemStack copy = slot.getItem().copy(); copy.setCount(1);
+                ghostInventory.setStackInSlot(i, copy);
+                getSlot(PLAYER_SLOTS + i).setChanged();
+                break;
+            }
+        }
+        return ItemStack.EMPTY;
+    }
+
+    /** Build a Pedal from the current ghost inventory state + given name. */
+    public PedalData.Pedal buildPedal(String name) {
+        PedalData.Pedal pedal = new PedalData.Pedal();
+        pedal.name = name;
+        pedal.setFreqA(ghostInventory.getStackInSlot(0));
+        pedal.setFreqB(ghostInventory.getStackInSlot(1));
+        return pedal;
+    }
+}

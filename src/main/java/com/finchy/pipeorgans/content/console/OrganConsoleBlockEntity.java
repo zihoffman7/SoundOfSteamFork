@@ -71,12 +71,6 @@ public class OrganConsoleBlockEntity extends SmartBlockEntity implements MenuPro
     // Output transmitter (channels 0-4)
     private final RedstoneMidiTransmitter link;
 
-    // Pedal data (config + positions)
-    private PedalData pedalData = new PedalData();
-
-    // Pedal redstone output
-    private PedalTransmitter pedalTransmitter;
-
     // Runtime (server-side) state
     private final List<ConsoleNoteReceiver> receivers = new ArrayList<>();
 
@@ -89,8 +83,6 @@ public class OrganConsoleBlockEntity extends SmartBlockEntity implements MenuPro
 
     public boolean menuPedalboardMode = false;
     public int menuManualCount = 1;
-    public int menuPedalIndex = 0;
-    public boolean menuHasPedalboard = false;
 
     public OrganConsoleBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -120,7 +112,6 @@ public class OrganConsoleBlockEntity extends SmartBlockEntity implements MenuPro
         };
 
         link = new RedstoneMidiTransmitter(this);
-        pedalTransmitter = new PedalTransmitter(this);
     }
 
     @Override
@@ -139,34 +130,6 @@ public class OrganConsoleBlockEntity extends SmartBlockEntity implements MenuPro
 
     public ItemStackHandler getFilterInventory() {
         return filterInventory;
-    }
-
-    public PedalData getPedalData() {
-        return pedalData;
-    }
-
-    /** Called server-side when a player moves a pedal. */
-    public void setPedalPosition(int pedalIndex, int position) {
-        if (pedalIndex < 0 || pedalIndex >= PedalData.PEDAL_COUNT)
-            return;
-        position = Math.max(0, Math.min(PedalData.MAX_POSITION, position));
-        pedalData.getPedal(pedalIndex).position = position;
-        if (level != null && !level.isClientSide)
-            pedalTransmitter.onPedalChanged(pedalIndex, level);
-        notifyUpdate();
-    }
-
-    /** Called server-side when a player saves pedal config from the edit screen. */
-    public void setPedalConfig(int pedalIndex, PedalData.Pedal updatedPedal) {
-        if (pedalIndex < 0 || pedalIndex >= PedalData.PEDAL_COUNT)
-            return;
-        int savedPos = updatedPedal.name.isEmpty() ? 0 : (pedalData.getPedal(pedalIndex).name.isEmpty() ? 15 : pedalData.getPedal(pedalIndex).position);
-        updatedPedal.position = savedPos;
-        pedalData.setPedal(pedalIndex, updatedPedal);
-        if (level != null && !level.isClientSide)
-            pedalTransmitter.onPedalChanged(pedalIndex, level);
-        setChanged();
-        notifyUpdate();
     }
 
     // Client helper
@@ -221,30 +184,10 @@ public class OrganConsoleBlockEntity extends SmartBlockEntity implements MenuPro
     public void openMenu(ServerPlayer player, boolean pedalboardMode) {
         menuPedalboardMode = pedalboardMode;
         menuManualCount = manualCount;
-        menuHasPedalboard = hasPedalboard;
         NetworkHooks.openScreen(player, this, buffer -> {
             sendToMenu(buffer);
             buffer.writeBoolean(pedalboardMode);
             buffer.writeVarInt(manualCount);
-            buffer.writeBoolean(hasPedalboard);
-        });
-    }
-
-    public void openPedalEditMenu(ServerPlayer player, int pedalIndex) {
-        menuPedalIndex = pedalIndex;
-        NetworkHooks.openScreen(player, new net.minecraft.world.MenuProvider() {
-            @Override
-            public net.minecraft.network.chat.Component getDisplayName() {
-                return Component.translatable("gui.pipeorgans.pedal_edit.title");
-            }
-
-            @Override
-            public AbstractContainerMenu createMenu(int id, Inventory inv, Player p) {
-                return PedalEditMenu.create(id, inv, OrganConsoleBlockEntity.this, pedalIndex);
-            }
-        }, buffer -> {
-            sendToMenu(buffer);
-            buffer.writeVarInt(pedalIndex);
         });
     }
 
@@ -478,7 +421,6 @@ public class OrganConsoleBlockEntity extends SmartBlockEntity implements MenuPro
                 return;
             link.setFrequencyKeysOnLoad(filterInventory);
             rebuildReceivers();
-            pedalTransmitter.initialize(level);
         }
 
         @Override
@@ -488,7 +430,6 @@ public class OrganConsoleBlockEntity extends SmartBlockEntity implements MenuPro
                 return;
             removeReceivers();
             link.stopAllNotes();
-            pedalTransmitter.unload(level);
         }
     }
 
@@ -498,7 +439,6 @@ public class OrganConsoleBlockEntity extends SmartBlockEntity implements MenuPro
         tag.putInt("ManualCount", manualCount);
         tag.putBoolean("HasPedalboard", hasPedalboard);
         tag.put("Filters", filterInventory.serializeNBT());
-        tag.put("PedalData", pedalData.toNbt());
         if (clientPacket)
             tag.putLongArray("ReceivedBits", receivedBits.clone());
     }
@@ -510,9 +450,6 @@ public class OrganConsoleBlockEntity extends SmartBlockEntity implements MenuPro
         hasPedalboard = tag.getBoolean("HasPedalboard");
         if (tag.contains("Filters"))
             filterInventory.deserializeNBT(tag.getCompound("Filters"));
-        if (tag.contains("PedalData")) {
-            pedalData = PedalData.fromNbt(tag.getCompound("PedalData"));
-        }
         if (clientPacket) {
             long[] bits = tag.getLongArray("ReceivedBits");
             for (int i = 0; i < receivedBits.length; i++)
@@ -522,10 +459,8 @@ public class OrganConsoleBlockEntity extends SmartBlockEntity implements MenuPro
         if (level != null && !level.isClientSide) {
             link.setFrequencyKeysOnLoad(filterInventory);
             // If behaviour is already initialized (mid-session update), rebuild receivers immediately.
-            if (getBehaviour(NETWORK_BEHAVIOUR) != null) {
+            if (getBehaviour(NETWORK_BEHAVIOUR) != null)
                 rebuildReceivers();
-                pedalTransmitter.rebuildAll(level);
-            }
         }
     }
 }

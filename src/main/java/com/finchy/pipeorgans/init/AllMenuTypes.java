@@ -3,8 +3,6 @@ package com.finchy.pipeorgans.init;
 import com.finchy.pipeorgans.PipeOrgans;
 import com.finchy.pipeorgans.content.console.OrganConsoleMenu;
 import com.finchy.pipeorgans.content.console.OrganConsoleScreen;
-import com.finchy.pipeorgans.content.console.PedalEditMenu;
-import com.finchy.pipeorgans.content.console.PedalEditScreen;
 import com.finchy.pipeorgans.content.coupler.CouplerEditMenu;
 import com.finchy.pipeorgans.content.coupler.CouplerEditScreen;
 import com.finchy.pipeorgans.content.coupler.CouplerMenu;
@@ -38,9 +36,6 @@ public class AllMenuTypes {
 
     public static final MenuEntry<OrganConsoleMenu> ORGAN_CONSOLE_MENU =
             register("organ_console", OrganConsoleMenu::new, () -> OrganConsoleScreen::new);
-
-    public static final MenuEntry<PedalEditMenu> PEDAL_EDIT_MENU =
-            register("pedal_edit", PedalEditMenu::new, () -> PedalEditScreen::new);
 
     public static final MenuEntry<StopMenu> STOP_MENU =
             register("stop_manager", StopMenu::new, () -> StopScreen::new);

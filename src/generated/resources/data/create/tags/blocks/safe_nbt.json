@@ -1,5 +1,8 @@
 {
   "values": [
-    "pipeorgans:note_link"
+    "pipeorgans:note_link",
+    "pipeorgans:swell_shutter",
+    "pipeorgans:swell_control",
+    "pipeorgans:swell_box"
   ]
 }

@@ -35,7 +35,10 @@ public enum AllPackets {
     PEDAL_CONFIG(PedalConfigPacket.class, PedalConfigPacket::new, PLAY_TO_SERVER),
     OPEN_PEDAL_EDIT(OpenPedalEditPacket.class, OpenPedalEditPacket::new, PLAY_TO_SERVER),
 
-    
+    SWELL_SCAN_CAP(SwellScanCapPacket.class, SwellScanCapPacket::new, PLAY_TO_SERVER),
+    SWELL_RECALIBRATE(SwellRecalibratePacket.class, SwellRecalibratePacket::new, PLAY_TO_SERVER),
+
+
     // server to client
     CLIPBOARD_ASSISTED_PLACEMENT(ClipboardAssistedPlacementPacket.class, ClipboardAssistedPlacementPacket::new, PLAY_TO_CLIENT),
     REDSTONE_LINK_NETWORK_DEBUG_INFO(RedstoneLinkNetworkDebugInfoPacket.class, RedstoneLinkNetworkDebugInfoPacket::new, NetworkDirection.PLAY_TO_CLIENT);

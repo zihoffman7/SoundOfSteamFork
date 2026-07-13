@@ -375,5 +375,13 @@
   "instrument.pipeorgans.jazz_drum_kit": "Jazz Drum Kit",
   "instrument.pipeorgans.brush_kit": "Brush Kit",
 
-  "instrument.pipeorgans.empty": ""
+  "instrument.pipeorgans.empty": "",
+
+  "gui.pipeorgans.swell_control.identifier": "Box Identifier",
+  "gui.pipeorgans.swell_control.signal": "Signal: %1$s",
+  "gui.pipeorgans.swell_control.shutters": "Shutters: %1$s",
+  "gui.pipeorgans.swell_control.holes": "Holes: %1$s",
+  "gui.pipeorgans.swell_control.volume": "Volume: %1$s%%",
+  "gui.pipeorgans.swell_control.max_vol": "Max Vol: %1$s%%",
+  "gui.pipeorgans.swell_control.max_vol_label": "Max Volume"
 }

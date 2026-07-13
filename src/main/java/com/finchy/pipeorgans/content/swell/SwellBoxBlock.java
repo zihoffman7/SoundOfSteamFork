@@ -22,8 +22,7 @@ public class SwellBoxBlock extends CopycatBlock {
     }
 
     @Override
-    public boolean canConnectTexturesToward(BlockAndTintGetter level, BlockPos pos,
-                                            BlockPos other, BlockState state) {
+    public boolean canConnectTexturesToward(BlockAndTintGetter level, BlockPos pos, BlockPos other, BlockState state) {
         return true;
     }
 
@@ -38,37 +37,30 @@ public class SwellBoxBlock extends CopycatBlock {
     }
 
     @Override
-    public void neighborChanged(BlockState state, Level level, BlockPos pos,
-                                Block neighborBlock, BlockPos neighborPos, boolean movedByPiston) {
+    public void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock, BlockPos neighborPos, boolean movedByPiston) {
         super.neighborChanged(state, level, pos, neighborBlock, neighborPos, movedByPiston);
-        // Only rescan when a neighbouring block was BROKEN (now air) — e.g. a hole
-        // opened or a pipe removed. Placing a block on the wall does nothing.
+        // Rescan when neighbouring block broken
         if (!level.isClientSide && level.getBlockState(neighborPos).isAir())
             triggerNearbyControls(level, pos);
     }
 
     @Override
-    public void onPlace(BlockState state, Level level, BlockPos pos,
-                        BlockState oldState, boolean movedByPiston) {
+    public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
         super.onPlace(state, level, pos, oldState, movedByPiston);
         if (!level.isClientSide) triggerNearbyControls(level, pos);
     }
 
     @Override
-    public void onRemove(BlockState state, Level level, BlockPos pos,
-                         BlockState newState, boolean movedByPiston) {
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         if (!state.is(newState.getBlock()) && !level.isClientSide)
             triggerNearbyControls(level, pos);
         super.onRemove(state, level, pos, newState, movedByPiston);
     }
 
-    /**
-     * BFS through connected swell box/shutter blocks to find all
-     * SwellControlBlockEntities and trigger a rescan on each.
-     */
+    // BFS through connected swell box/shutter blocks to find all
     public static void triggerNearbyControls(Level level, BlockPos origin) {
-        Set<BlockPos>   visited = new HashSet<>();
-        Queue<BlockPos> queue   = new ArrayDeque<>();
+        Set<BlockPos> visited = new HashSet<>();
+        Queue<BlockPos> queue = new ArrayDeque<>();
         visited.add(origin);
         queue.add(origin);
 

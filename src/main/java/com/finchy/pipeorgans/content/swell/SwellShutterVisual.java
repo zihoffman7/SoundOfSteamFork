@@ -15,15 +15,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
 
-/**
- * Flywheel visual for the swell shutter: four vertical louver slats, each showing a
- * 4px-wide strip of the copycat material at natural scale, pivoting on their vertical
- * axis by an angle driven by the block entity's animated OPENNESS.
- *
- * The slat models are pre-positioned at their X location by
- * {@link SwellShutterSlatModels}, so the visual only translates the block into place
- * and applies the pivot rotation (no scaling — the texture is never stretched).
- */
 public class SwellShutterVisual extends AbstractBlockEntityVisual<SwellShutterBlockEntity>
         implements SimpleDynamicVisual {
 
@@ -81,7 +72,7 @@ public class SwellShutterVisual extends AbstractBlockEntityVisual<SwellShutterBl
                     .translate(0.5f, 0.5f, 0.5f)
                     .rotateY(facingYaw)
                     .translate(-0.5f, -0.5f, -0.5f)
-                    // pivot the (already-positioned) slat around its vertical centre line
+                    // pivot 
                     .translate(centerX, 0f, 0.5f)
                     .rotateY(angle)
                     .translate(-centerX, 0f, -0.5f)

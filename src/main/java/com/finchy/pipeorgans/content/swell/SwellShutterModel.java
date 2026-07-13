@@ -12,12 +12,6 @@ import net.minecraftforge.client.model.data.ModelData;
 
 import java.util.List;
 
-/**
- * The swell shutter's static blockstate model renders nothing — the louver slats
- * are drawn entirely by {@link SwellShutterVisual} (Flywheel) or the fallback
- * {@link SwellShutterRenderer}. This wrapper exists only so the copycat material
- * is carried in the model data (for particles, occlusion, etc.).
- */
 public class SwellShutterModel extends CopycatModel {
 
     public SwellShutterModel(BakedModel template) {
@@ -35,9 +29,7 @@ public class SwellShutterModel extends CopycatModel {
     }
 
     @Override
-    protected List<BakedQuad> getCroppedQuads(BlockState state, Direction side,
-                                               RandomSource rand, BlockState material,
-                                               ModelData modelData, RenderType renderType) {
+    protected List<BakedQuad> getCroppedQuads(BlockState state, Direction side, RandomSource rand, BlockState material, ModelData modelData, RenderType renderType) {
         return List.of();
     }
 }

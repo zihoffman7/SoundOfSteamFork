@@ -11,9 +11,9 @@ import net.minecraft.world.entity.player.Inventory;
 
 public class SwellControlScreen extends AbstractSimiContainerScreen<SwellControlMenu> {
 
-    private static final int COLOR_PANEL        = 0xFF313131;
+    private static final int COLOR_PANEL = 0xFF313131;
     private static final int COLOR_PANEL_BORDER = 0xFF161616;
-    private static final int COLOR_LABEL        = 0xFFB0B0B0;
+    private static final int COLOR_LABEL = 0xFFB0B0B0;
 
     private final BlockPos pos;
 
@@ -29,7 +29,7 @@ public class SwellControlScreen extends AbstractSimiContainerScreen<SwellControl
         super.init();
 
         int btnY = topPos + SwellControlMenu.CAP_ROW_Y;
-        int bx   = leftPos + SwellControlMenu.MARGIN;
+        int bx = leftPos + SwellControlMenu.MARGIN;
 
         addRenderableWidget(Button.builder(Component.literal("-"), b -> adjustCap(false))
                 .bounds(bx, btnY, 16, 14).build());

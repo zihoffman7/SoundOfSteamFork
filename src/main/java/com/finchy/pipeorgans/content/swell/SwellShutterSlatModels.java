@@ -17,12 +17,6 @@ import net.minecraftforge.client.model.data.ModelData;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Builds the four louver-slat {@link Model}s for a swell shutter from a copycat
- * material. Each slat is a genuine 1px-thick box whose faces are cropped from the
- * material's own face quads, so the material texture is shown at natural scale (no
- * stretching) and the slats have visible thickness.
- */
 public final class SwellShutterSlatModels {
 
     public static final int SLAT_COUNT = 4;
@@ -32,9 +26,7 @@ public final class SwellShutterSlatModels {
 
     private SwellShutterSlatModels() {}
 
-    /** @return an array of 4 Flywheel models, one per slat (index 0 = leftmost). */
     public static Model[] build(BlockState material) {
-        // Empty shutter: use the authored swell_shutter model/texture as the default look.
         if (com.simibubi.create.AllBlocks.COPYCAT_BASE.has(material)) {
             return buildDefaultSlats();
         }
@@ -49,12 +41,6 @@ public final class SwellShutterSlatModels {
         return models;
     }
 
-    /**
-     * Build the 4 slats from the authored {@code block/swell_shutter} model (used when
-     * no material is placed). The model already contains 4 slat elements with the
-     * swell_shutter texture and correct UVs; we split its quads into 4 groups by their
-     * X position so each slat can pivot independently.
-     */
     private static Model[] buildDefaultSlats() {
         BakedModel model = AllPartialModels.SWELL_SHUTTER.get();
         List<BakedQuad>[] perSlat = defaultSlatQuads();
@@ -65,7 +51,6 @@ public final class SwellShutterSlatModels {
         return models;
     }
 
-    /** Split the authored swell_shutter model's quads into 4 slats by X position. */
     @SuppressWarnings("unchecked")
     private static List<BakedQuad>[] defaultSlatQuads() {
         BakedModel model = AllPartialModels.SWELL_SHUTTER.get();
@@ -79,10 +64,6 @@ public final class SwellShutterSlatModels {
         List<BakedQuad>[] perSlat = new List[SLAT_COUNT];
         for (int i = 0; i < SLAT_COUNT; i++) perSlat[i] = new ArrayList<>();
         for (BakedQuad q : all) {
-            // Nudge by the face normal so faces sitting exactly on a slat boundary
-            // (x = 0.25, 0.5, 0.75) are assigned to the slat they actually belong to:
-            // an east (+X) face belongs to the slat on its left, a west (-X) face to
-            // the slat on its right.
             float nudged = centroidX(q) - q.getDirection().getStepX() * 0.001f;
             int idx = net.minecraft.util.Mth.clamp((int) (nudged * SLAT_COUNT), 0, SLAT_COUNT - 1);
             perSlat[idx].add(q);
@@ -97,10 +78,8 @@ public final class SwellShutterSlatModels {
         return sum / 4f;
     }
 
-    /** @return the cropped face quads forming each of the 4 slat boxes. */
     @SuppressWarnings("unchecked")
     public static List<BakedQuad>[] buildQuads(BlockState material) {
-        // Empty shutter: use the authored swell_shutter model quads.
         if (com.simibubi.create.AllBlocks.COPYCAT_BASE.has(material)) {
             return defaultSlatQuads();
         }
@@ -110,10 +89,10 @@ public final class SwellShutterSlatModels {
 
         List<BakedQuad> south = matModel.getQuads(material, Direction.SOUTH, rand, ModelData.EMPTY, null);
         List<BakedQuad> north = matModel.getQuads(material, Direction.NORTH, rand, ModelData.EMPTY, null);
-        List<BakedQuad> up    = matModel.getQuads(material, Direction.UP,    rand, ModelData.EMPTY, null);
-        List<BakedQuad> down  = matModel.getQuads(material, Direction.DOWN,  rand, ModelData.EMPTY, null);
-        List<BakedQuad> east  = matModel.getQuads(material, Direction.EAST,  rand, ModelData.EMPTY, null);
-        List<BakedQuad> west  = matModel.getQuads(material, Direction.WEST,  rand, ModelData.EMPTY, null);
+        List<BakedQuad> up  = matModel.getQuads(material, Direction.UP, rand, ModelData.EMPTY, null);
+        List<BakedQuad> down = matModel.getQuads(material, Direction.DOWN, rand, ModelData.EMPTY, null);
+        List<BakedQuad> east = matModel.getQuads(material, Direction.EAST, rand, ModelData.EMPTY, null);
+        List<BakedQuad> west = matModel.getQuads(material, Direction.WEST, rand, ModelData.EMPTY, null);
 
         List<BakedQuad>[] perSlat = new List[SLAT_COUNT];
         for (int i = 0; i < SLAT_COUNT; i++) {
@@ -146,11 +125,6 @@ public final class SwellShutterSlatModels {
         return new Vec3(a == Axis.X ? val : v.x, a == Axis.Y ? val : v.y, a == Axis.Z ? val : v.z);
     }
 
-    /**
-     * Crop a face quad along {@code cropAxis} to the fractional sub-range
-     * [frac0,frac1] of its extent (interpolating U, which is assumed to follow
-     * cropAxis), and set {@code moveAxis} to the absolute value {@code moveTo}.
-     */
     private static BakedQuad cropAxis(BakedQuad src, Axis cropAxis, float frac0, float frac1,
                                       Axis moveAxis, float moveTo) {
         int[] v = BakedQuadHelper.clone(src).getVertices();
@@ -182,11 +156,6 @@ public final class SwellShutterSlatModels {
         return BakedQuadHelper.cloneWithCustomGeometry(src, v);
     }
 
-    /**
-     * Crop a horizontal (up/down) face to the thin slat box: crop {@code uAxis}
-     * (U follows it) to [frac0,frac1] of its extent, and crop {@code vAxis}
-     * (V follows it) to the absolute range [vLo,vHi].
-     */
     private static BakedQuad cropBox(BakedQuad src, float frac0, float frac1,
                                      float vLo, float vHi, Axis uAxis, Axis vAxis) {
         int[] v = BakedQuadHelper.clone(src).getVertices();
@@ -212,7 +181,6 @@ public final class SwellShutterSlatModels {
             if (coord(p, vAxis) >  vMid && !gv1) { texVMax = BakedQuadHelper.getV(v, i); gv1 = true; }
         }
 
-        // fractional position of the absolute [vLo,vHi] within the face's v-extent
         float vf0 = (vLo - vMinPos) / (vMaxPos - vMinPos);
         float vf1 = (vHi - vMinPos) / (vMaxPos - vMinPos);
 
@@ -233,7 +201,6 @@ public final class SwellShutterSlatModels {
         return BakedQuadHelper.cloneWithCustomGeometry(src, v);
     }
 
-    /** Minimal baked model exposing the cropped slat quads as general (unculled) quads. */
     private static final class SlatModel extends BakedModelWrapper<BakedModel> {
         private final List<BakedQuad> quads;
 

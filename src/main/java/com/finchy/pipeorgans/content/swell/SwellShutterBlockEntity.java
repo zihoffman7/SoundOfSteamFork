@@ -6,19 +6,10 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
-/**
- * Copycat block entity for the swell shutter.
- *
- * The louver slats pivot between fully closed (OPENNESS 0) and fully open
- * (OPENNESS 15). The target angle is derived from the OPENNESS blockstate value
- * (written by the SwellControlBlockEntity); the client-side {@link #angle} lerps
- * toward that target each tick so the movement is smooth rather than snapping.
- */
 public class SwellShutterBlockEntity extends CopycatBlockEntity {
 
-    /** Fully-open slat angle, in degrees. 0 = closed (facing the viewer). */
     public static final float MAX_ANGLE = 80f;
-    /** How much of the remaining gap the angle closes each tick (0..1). */
+    // How much  remaining gap angle closes each tick
     private static final float LERP_SPEED = 0.35f;
 
     private float angle;
@@ -31,7 +22,7 @@ public class SwellShutterBlockEntity extends CopycatBlockEntity {
         previousAngle = target;
     }
 
-    /** Target slat angle in degrees, derived from the OPENNESS blockstate value. */
+    // Target slat angle (degrees)
     private float targetAngle() {
         int openness = getBlockState().hasProperty(SwellShutterBlock.OPENNESS)
                 ? getBlockState().getValue(SwellShutterBlock.OPENNESS)
@@ -46,7 +37,7 @@ public class SwellShutterBlockEntity extends CopycatBlockEntity {
         angle = Mth.lerp(LERP_SPEED, angle, targetAngle());
     }
 
-    /** Interpolated slat angle in degrees for smooth rendering. */
+    // For smooth rendering
     public float getAngle(float partialTick) {
         return Mth.lerp(partialTick, previousAngle, angle);
     }

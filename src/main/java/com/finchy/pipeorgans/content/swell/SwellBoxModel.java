@@ -29,12 +29,6 @@ public class SwellBoxModel extends CopycatModel {
         return !AllBlocks.COPYCAT_BASE.has(getMaterial(modelData));
     }
 
-    /**
-     * Report the render layers this block needs:
-     *   Empty  -> the template's layers (cutout, for the transparent grate).
-     *   Filled -> the placed material's own layers, so the chunk builder queries
-     *             getQuads in the layer the material actually uses.
-     */
     @Override
     public ChunkRenderTypeSet getRenderTypes(BlockState state, RandomSource rand, ModelData modelData) {
         if (!hasMaterial(modelData)) {
@@ -45,13 +39,6 @@ public class SwellBoxModel extends CopycatModel {
                 .getRenderTypes(material, rand, ModelData.EMPTY);
     }
 
-    /**
-     * CopycatModel.getQuads always routes here because getMaterial() never returns
-     * null — it falls back to CopycatBase when the box is empty.
-     *
-     *   Empty  (material == CopycatBase): render the grate template.
-     *   Filled (real material):           render only the placed block; grate is gone.
-     */
     @Override
     protected List<BakedQuad> getCroppedQuads(BlockState state, Direction side,
                                                RandomSource rand, BlockState material,

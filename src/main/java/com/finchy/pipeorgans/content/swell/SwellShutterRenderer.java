@@ -16,17 +16,12 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
 import java.util.List;
 
-/**
- * Fallback renderer for the swell shutter, used only when Flywheel visualization is
- * unavailable. Draws the same four pivoting, non-stretched material slats as
- * {@link SwellShutterVisual}, using the cropped quads from
- * {@link SwellShutterSlatModels}.
- */
+// Fallback
 public class SwellShutterRenderer extends SafeBlockEntityRenderer<SwellShutterBlockEntity> {
 
     private static final int   SLAT_COUNT = SwellShutterSlatModels.SLAT_COUNT;
-    private static final float SLAT_STEP  = 4f / 16f;
-    private static final float SLAT_HALF  = 2f / 16f;
+    private static final float SLAT_STEP = 4f / 16f;
+    private static final float SLAT_HALF = 2f / 16f;
 
     public SwellShutterRenderer(BlockEntityRendererProvider.Context context) {}
 

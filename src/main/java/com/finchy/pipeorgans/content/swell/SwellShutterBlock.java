@@ -21,30 +21,21 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.Objects;
 
-/**
- * Swell Shutter — a copycat louver panel that forms part of a swell box wall.
- *
- * OPENNESS 0 = fully closed, 15 = fully open. The value is written by the
- * SwellControlBlockEntity when it receives a redstone-link signal, and drives the
- * pivot angle of the Flywheel-rendered slats (see SwellShutterVisual / Renderer).
- *
- * Being a copycat, the slats are textured with whatever block is placed inside it.
- */
+  // Copycat louver panel
+  // OPENNESS: 0 = fully closed, 15 = fully open.
+
 public class SwellShutterBlock extends CopycatBlock {
 
-    public static final DirectionProperty FACING   = BlockStateProperties.HORIZONTAL_FACING;
-    public static final IntegerProperty   OPENNESS = IntegerProperty.create("openness", 0, 15);
+    public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+    public static final IntegerProperty OPENNESS = IntegerProperty.create("openness", 0, 15);
 
-    // Slats are 4px wide and pivot on their vertical axis, so their maximum sweep
-    // along the facing axis is ~4px, centred on the block. The hitbox reflects that
-    // rather than occupying the full block.
-    private static final VoxelShape SHAPE_Z = Block.box(0, 0, 6, 16, 16, 10); // facing N/S
-    private static final VoxelShape SHAPE_X = Block.box(6, 0, 0, 10, 16, 16); // facing E/W
+    private static final VoxelShape SHAPE_Z = Block.box(0, 0, 6, 16, 16, 10);
+    private static final VoxelShape SHAPE_X = Block.box(6, 0, 0, 10, 16, 16);
 
     public SwellShutterBlock(Properties properties) {
         super(properties);
         registerDefaultState(defaultBlockState()
-                .setValue(FACING,   Direction.NORTH)
+                .setValue(FACING, Direction.NORTH)
                 .setValue(OPENNESS, 0));
     }
 
@@ -71,13 +62,9 @@ public class SwellShutterBlock extends CopycatBlock {
         return state.getValue(FACING).getAxis() == Direction.Axis.X ? SHAPE_X : SHAPE_Z;
     }
 
-    // -----------------------------------------------------------------------
-    // Copycat wiring
-    // -----------------------------------------------------------------------
-
+    // Copycat
     @Override
-    public boolean canConnectTexturesToward(BlockAndTintGetter level, BlockPos pos,
-                                            BlockPos other, BlockState state) {
+    public boolean canConnectTexturesToward(BlockAndTintGetter level, BlockPos pos, BlockPos other, BlockState state) {
         return true;
     }
 
@@ -91,10 +78,7 @@ public class SwellShutterBlock extends CopycatBlock {
         return com.finchy.pipeorgans.init.AllBlockEntities.SWELL_SHUTTER_BE.get();
     }
 
-    /**
-     * CopycatBlock returns a null ticker; we need the BE to tick (on both sides)
-     * so the slat angle animates toward the OPENNESS target every tick.
-     */
+    // To enable updates on every tick for input from control
     @Override
     @SuppressWarnings("unchecked")
     public <S extends net.minecraft.world.level.block.entity.BlockEntity>
@@ -107,31 +91,24 @@ public class SwellShutterBlock extends CopycatBlock {
         return null;
     }
 
-    // -----------------------------------------------------------------------
-    // Swell-control triggers (same as the swell box)
-    // -----------------------------------------------------------------------
-
+    // Swell control triggers
     @Override
-    public void onPlace(BlockState state, Level level, BlockPos pos,
-                        BlockState oldState, boolean movedByPiston) {
+    public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
         super.onPlace(state, level, pos, oldState, movedByPiston);
         if (!level.isClientSide) SwellBoxBlock.triggerNearbyControls(level, pos);
     }
 
     @Override
-    public void onRemove(BlockState state, Level level, BlockPos pos,
-                         BlockState newState, boolean movedByPiston) {
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         if (!state.is(newState.getBlock()) && !level.isClientSide)
             SwellBoxBlock.triggerNearbyControls(level, pos);
         super.onRemove(state, level, pos, newState, movedByPiston);
     }
 
     @Override
-    public void neighborChanged(BlockState state, Level level, BlockPos pos,
-                                Block neighborBlock, BlockPos neighborPos, boolean movedByPiston) {
+    public void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock, BlockPos neighborPos, boolean movedByPiston) {
         super.neighborChanged(state, level, pos, neighborBlock, neighborPos, movedByPiston);
-        // Only rescan when a neighbouring block was BROKEN (now air). Placing a block
-        // on the shutter does nothing.
+        // Rescan when neighbor broken
         if (!level.isClientSide && level.getBlockState(neighborPos).isAir())
             SwellBoxBlock.triggerNearbyControls(level, pos);
     }

@@ -50,9 +50,7 @@ public class SwellControlBlock extends Block implements IBE<SwellControlBlockEnt
                 : state.rotate(mirror.getRotation(state.getValue(FACING)));
     }
 
-    // -----------------------------------------------------------------------
     // Redstone input — read signal on placement and neighbor changes
-    // -----------------------------------------------------------------------
 
     @Override
     public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
@@ -65,15 +63,11 @@ public class SwellControlBlock extends Block implements IBE<SwellControlBlockEnt
     }
 
     @Override
-    public void neighborChanged(BlockState state, Level level, BlockPos pos,
-                                Block neighborBlock, BlockPos neighborPos, boolean movedByPiston) {
+    public void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock, BlockPos neighborPos, boolean movedByPiston) {
         super.neighborChanged(state, level, pos, neighborBlock, neighborPos, movedByPiston);
         if (!level.isClientSide)
             withBlockEntityDo(level, pos, be -> {
-                // Redstone / signal update is cheap (no flood fill).
                 be.onSignalChanged(level.getBestNeighborSignal(pos));
-                // Only re-scan the geometry if a neighbouring block was BROKEN
-                // (now air). Placing a block never triggers a rescan.
                 if (level.getBlockState(neighborPos).isAir())
                     be.forceRescan();
             });
@@ -94,11 +88,7 @@ public class SwellControlBlock extends Block implements IBE<SwellControlBlockEnt
                         (net.minecraft.server.level.ServerPlayer) player, be, be::sendToMenu));
         return net.minecraft.world.InteractionResult.SUCCESS;
     }
-
-    // -----------------------------------------------------------------------
-    // IBE
-    // -----------------------------------------------------------------------
-
+    
     @Override
     public Class<SwellControlBlockEntity> getBlockEntityClass() {
         return SwellControlBlockEntity.class;

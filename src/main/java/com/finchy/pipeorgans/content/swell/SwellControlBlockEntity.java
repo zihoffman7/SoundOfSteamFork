@@ -25,30 +25,27 @@ import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 
 import java.util.*;
 
-public class SwellControlBlockEntity extends SmartBlockEntity
-        implements IHaveGoggleInformation, MenuProvider {
+public class SwellControlBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation, MenuProvider {
 
     public static final int DEFAULT_CAP = 4000;
 
     // Persistent
-    private int     signalLevel = 0;
-    private int     scanCap     = DEFAULT_CAP;
-    private boolean goggles     = false;
+    private int signalLevel = 0;
+    private int  scanCap = DEFAULT_CAP;
+    private boolean goggles = false;
 
     // Client-synced display state
-    private int     shutterCount   = 0;
-    private int     interiorVolume = 0;
-    private boolean hasHoles       = false;
-    private float   maxVolume      = 1.0f;
-    private float   volumeFactor   = 1.0f;
+    private int shutterCount = 0;
+    private int interiorVolume = 0;
+    private boolean hasHoles = false;
+    private float maxVolume = 1.0f;
+    private float volumeFactor = 1.0f;
 
     // Server-only runtime
     private final Set<BlockPos> trackedPipes = new HashSet<>();
-    // Shutter positions found by the last flood fill, so a signal change can re-apply
-    // openness without re-running the expensive scan.
     private final List<BlockPos> cachedShutters = new ArrayList<>();
-    private boolean scanPending  = false; // structural change → needs a full flood fill
-    private boolean applyPending = false; // signal change → only recompute + re-apply
+    private boolean scanPending = false;
+    private boolean applyPending = false;
 
     public SwellControlBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -57,36 +54,23 @@ public class SwellControlBlockEntity extends SmartBlockEntity
     @Override
     public void addBehaviours(List<BlockEntityBehaviour> behaviours) {}
 
-    // -----------------------------------------------------------------------
-    // Triggers
-    // -----------------------------------------------------------------------
-
-    /**
-     * Redstone input changed. This does NOT change the box geometry, so it only
-     * schedules a cheap recompute of the volume factor + shutter openness — never a
-     * full flood-fill scan. This is what keeps redstone-driven changes cheap.
-     */
     public void onSignalChanged(int newSignal) {
         if (signalLevel == newSignal) return;
         signalLevel = newSignal;
         applyPending = true;
     }
 
-    /** Schedule a full structural flood-fill (block broken, or swell block placed/removed). */
     public void forceRescan() {
         scanPending = true;
     }
 
-    public int  getScanCap()        { return scanCap; }
+    public int  getScanCap() { return scanCap; }
+
     public void setScanCap(int cap) {
         scanCap = Math.max(20, cap);
         setChanged();
         scanPending = true;
     }
-
-    // -----------------------------------------------------------------------
-    // Tick
-    // -----------------------------------------------------------------------
 
     @Override
     public void tick() {
@@ -95,35 +79,29 @@ public class SwellControlBlockEntity extends SmartBlockEntity
         if (scanPending) {
             scanPending = false;
             applyPending = false;
-            runScan();               // full flood fill (structural change)
+            runScan(); // full flood fill (structural change)
         } else if (applyPending) {
             applyPending = false;
-            recomputeAndApply();     // cheap: reuse cached scan results
+            recomputeAndApply(); // reuse cached scan results
         }
     }
 
-    // -----------------------------------------------------------------------
     // Flood fill — only SwellBoxBlock and SwellShutterBlock are walls
-    // Everything else is traversed. Enclosed = fill terminates within cap.
-    // -----------------------------------------------------------------------
-
     private void runScan() {
         if (!(level instanceof ServerLevel serverLevel)) return;
 
-        // Long-keyed sets/queue + reused mutable positions: the scan allocates almost
-        // nothing and never queries block entities in the hot loop (pipes are detected
-        // from the block class we already fetched).
-        LongOpenHashSet    visited  = new LongOpenHashSet();
-        LongOpenHashSet    interior = new LongOpenHashSet();
-        LongArrayFIFOQueue queue    = new LongArrayFIFOQueue();
-        List<BlockPos>     shutters = new ArrayList<>();
-        List<BlockPos>     pipes    = new ArrayList<>();
+        // Rhe scan allocates almost nothing and never queries block entities in the hot loop
+        LongOpenHashSet visited = new LongOpenHashSet();
+        LongOpenHashSet interior = new LongOpenHashSet();
+        LongArrayFIFOQueue queue = new LongArrayFIFOQueue();
+        List<BlockPos> shutters = new ArrayList<>();
+        List<BlockPos> pipes = new ArrayList<>();
         int interiorCount = 0;
 
         BlockPos.MutableBlockPos cur  = new BlockPos.MutableBlockPos();
         BlockPos.MutableBlockPos next = new BlockPos.MutableBlockPos();
 
-        // Seed from the control's 6 faces, skipping wall blocks (box / shutter).
+        // Seed from the control's 6 faces, skipping wall blocks
         for (Direction dir : Direction.values()) {
             next.setWithOffset(worldPosition, dir);
             if (!serverLevel.isLoaded(next)) continue;
@@ -146,13 +124,12 @@ public class SwellControlBlockEntity extends SmartBlockEntity
 
             if (block instanceof SwellShutterBlock) {
                 shutters.add(cur.immutable());
-                continue; // wall boundary
+                continue;
             }
             if (block instanceof SwellBoxBlock) {
-                continue; // wall boundary
+                continue;
             }
 
-            // Interior block. Detect pipes cheaply by block class — no getBlockEntity.
             interior.add(key);
             if (block instanceof GenericPipeBlock) pipes.add(cur.immutable());
             interiorCount++;
@@ -166,19 +143,17 @@ public class SwellControlBlockEntity extends SmartBlockEntity
 
         boolean foundHole = hitCap;
 
-        // Keep only "wall" shutters — those on the outside of the box. A wall shutter
-        // has at least one face exposed to the exterior (a neighbour that is neither
-        // part of the interior fill nor another swell box/shutter). Shutters placed
-        // floating inside the box are surrounded by interior blocks and are ignored.
+        // Keep only wall shutters
+        // A wall shutter has at least one face exposed to the exterior (a neighbour that is neither part of the interior fill nor another swell box/shutter)
         List<BlockPos> wallShutters = new ArrayList<>();
         for (BlockPos sp : shutters) {
             boolean exposed = false;
             for (Direction dir : Direction.values()) {
                 next.setWithOffset(sp, dir);
-                if (interior.contains(next.asLong())) continue;      // faces the inside
+                if (interior.contains(next.asLong())) continue; // faces the inside
                 Block nb = serverLevel.getBlockState(next).getBlock();
                 if (!(nb instanceof SwellBoxBlock) && !(nb instanceof SwellShutterBlock)) {
-                    exposed = true;                                   // faces the exterior
+                    exposed = true; // faces the exterior
                     break;
                 }
             }
@@ -189,7 +164,7 @@ public class SwellControlBlockEntity extends SmartBlockEntity
         this.interiorVolume = interiorCount;
         this.hasHoles       = foundHole;
 
-        // Cache the wall shutter positions so a signal change can re-apply openness cheaply.
+        // Cache the wall shutter positions so a signal change can re-apply
         cachedShutters.clear();
         cachedShutters.addAll(wallShutters);
 
@@ -208,19 +183,15 @@ public class SwellControlBlockEntity extends SmartBlockEntity
         recomputeAndApply();
     }
 
-    /**
-     * Recompute the volume factor from the cached scan results (shutter count,
-     * interior volume, enclosure) plus the current signal level, and apply it to the
-     * cached shutters and tracked pipes. Cheap — does NOT flood fill — so it is safe
-     * to run on every redstone signal change.
-     */
+    // Recompute volume factor from the cached scan results
+    // Does NOT flood fill, runs on every redstone signal change.
     private void recomputeAndApply() {
         if (!(level instanceof ServerLevel serverLevel)) return;
 
         float newMaxVol;
         float newFactor;
         if (hasHoles) {
-            // Not enclosed — swell control has no effect, pipes play at full volume
+            // Not enclosed
             newMaxVol = 1.0f;
             newFactor = 1.0f;
         } else {
@@ -230,10 +201,10 @@ public class SwellControlBlockEntity extends SmartBlockEntity
                     : 1.0f;
             newFactor = (signalLevel / 15f) * newMaxVol;
         }
-        this.maxVolume    = newMaxVol;
+        this.maxVolume = newMaxVol;
         this.volumeFactor = newFactor;
 
-        // Apply shutter openness (only touches the few cached shutter blocks).
+        // Apply shutter openness
         for (BlockPos sp : cachedShutters) {
             BlockState s = serverLevel.getBlockState(sp);
             if (s.getBlock() instanceof SwellShutterBlock
@@ -243,7 +214,7 @@ public class SwellControlBlockEntity extends SmartBlockEntity
             }
         }
 
-        // Push the factor to every tracked pipe.
+        // Push the factor to every tracked pipe
         for (BlockPos pp : trackedPipes) {
             BlockEntity be = serverLevel.getBlockEntity(pp);
             if (be instanceof GenericPipeBlockEntity p) p.updateSwellFactor(worldPosition, newFactor);
@@ -261,32 +232,26 @@ public class SwellControlBlockEntity extends SmartBlockEntity
         trackedPipes.clear();
     }
 
-    // -----------------------------------------------------------------------
     // Goggles
-    // -----------------------------------------------------------------------
-
-    public boolean hasGoggles()          { return goggles; }
-    public void    setGoggles(boolean g) { goggles = g; }
+    public boolean hasGoggles() { return goggles; }
+    public void setGoggles(boolean g) { goggles = g; }
 
     @Override
     public boolean addToGoggleTooltip(List<Component> tooltip, boolean sneaking) {
-        CreateLang.builder().text("Signal: "   + signalLevel)                        .forGoggles(tooltip);
-        CreateLang.builder().text("Enclosed: " + (!hasHoles ? "yes" : "no"))         .forGoggles(tooltip);
+        CreateLang.builder().text("Signal: " + signalLevel).forGoggles(tooltip);
+        CreateLang.builder().text("Enclosed: " + (!hasHoles ? "yes" : "no")).forGoggles(tooltip);
         if (!hasHoles) {
-            CreateLang.builder().text("Shutters: "  + shutterCount)                  .forGoggles(tooltip);
-            CreateLang.builder().text("Interior: "  + interiorVolume + " blocks")    .forGoggles(tooltip);
-            CreateLang.builder().text("Max Vol: "   + (int)(maxVolume * 100f) + "%") .forGoggles(tooltip);
+            CreateLang.builder().text("Shutters: " + shutterCount).forGoggles(tooltip);
+            CreateLang.builder().text("Interior: " + interiorVolume + " blocks").forGoggles(tooltip);
+            CreateLang.builder().text("Max Vol: " + (int)(maxVolume * 100f) + "%").forGoggles(tooltip);
         } else {
-            CreateLang.builder().text("Max Vol: 100%")                               .forGoggles(tooltip);
+            CreateLang.builder().text("Max Vol: 100%").forGoggles(tooltip);
         }
-        CreateLang.builder().text("Volume: "   + (int)(volumeFactor * 100f) + "%")  .forGoggles(tooltip);
+        CreateLang.builder().text("Volume: "  + (int)(volumeFactor * 100f) + "%").forGoggles(tooltip);
         return true;
     }
 
-    // -----------------------------------------------------------------------
-    // MenuProvider (scan cap GUI)
-    // -----------------------------------------------------------------------
-
+    // GUI
     @Override
     public Component getDisplayName() {
         return Component.translatable("block.pipeorgans.swell_control");
@@ -297,22 +262,20 @@ public class SwellControlBlockEntity extends SmartBlockEntity
         return SwellControlMenu.create(id, inv, this);
     }
 
-    // -----------------------------------------------------------------------
     // Persistence
-    // -----------------------------------------------------------------------
 
     @Override
     protected void write(CompoundTag tag, boolean clientPacket) {
         super.write(tag, clientPacket);
-        tag.putInt("Signal",  signalLevel);
+        tag.putInt("Signal", signalLevel);
         tag.putInt("ScanCap", scanCap);
         tag.putBoolean("Goggles", goggles);
         if (clientPacket) {
-            tag.putInt("Shutters",     shutterCount);
-            tag.putInt("Interior",     interiorVolume);
+            tag.putInt("Shutters", shutterCount);
+            tag.putInt("Interior", interiorVolume);
             tag.putBoolean("HasHoles", hasHoles);
-            tag.putFloat("MaxVol",     maxVolume);
-            tag.putFloat("VolFactor",  volumeFactor);
+            tag.putFloat("MaxVol", maxVolume);
+            tag.putFloat("VolFactor", volumeFactor);
         }
     }
 
@@ -320,21 +283,21 @@ public class SwellControlBlockEntity extends SmartBlockEntity
     protected void read(CompoundTag tag, boolean clientPacket) {
         super.read(tag, clientPacket);
         signalLevel = tag.getInt("Signal");
-        scanCap     = tag.contains("ScanCap") ? Math.max(64, tag.getInt("ScanCap")) : DEFAULT_CAP;
-        goggles     = tag.getBoolean("Goggles");
+        scanCap = tag.contains("ScanCap") ? Math.max(64, tag.getInt("ScanCap")) : DEFAULT_CAP;
+        goggles = tag.getBoolean("Goggles");
         if (clientPacket) {
-            shutterCount   = tag.getInt("Shutters");
+            shutterCount = tag.getInt("Shutters");
             interiorVolume = tag.getInt("Interior");
-            hasHoles       = tag.getBoolean("HasHoles");
-            maxVolume      = tag.getFloat("MaxVol");
-            volumeFactor   = tag.getFloat("VolFactor");
+            hasHoles = tag.getBoolean("HasHoles");
+            maxVolume = tag.getFloat("MaxVol");
+            volumeFactor = tag.getFloat("VolFactor");
         } else {
             scanPending = true;
         }
     }
 
-    public int     getShutterCount() { return shutterCount; }
-    public boolean getHasHoles()     { return hasHoles;     }
-    public float   getMaxVolume()    { return maxVolume;    }
-    public float   getVolumeFactor() { return volumeFactor; }
+    public int getShutterCount() { return shutterCount; }
+    public boolean getHasHoles() { return hasHoles; }
+    public float getMaxVolume() { return maxVolume; }
+    public float getVolumeFactor() { return volumeFactor; }
 }

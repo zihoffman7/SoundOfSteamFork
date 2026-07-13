@@ -594,6 +594,54 @@ public class AllBlocks {
             .transform(customItemModel("_", "transmitter"))
             .register();
 
+    public static final BlockEntry<com.finchy.pipeorgans.content.swell.SwellShutterBlock> SWELL_SHUTTER =
+            REGISTRATE.block("swell_shutter", com.finchy.pipeorgans.content.swell.SwellShutterBlock::new)
+            .initialProperties(() -> Blocks.OAK_PLANKS)
+            .properties(p -> p.noOcclusion())
+            .lang("Copycat Swell Shutter")
+            .tag(com.simibubi.create.AllTags.AllBlockTags.SAFE_NBT.tag)
+            .transform(com.simibubi.create.foundation.data.BuilderTransformers.copycat())
+            .blockstate((ctx, prov) -> prov.getVariantBuilder(ctx.get())
+                    .forAllStates(state -> net.minecraftforge.client.model.generators.ConfiguredModel.builder()
+                            .modelFile(prov.models().getExistingFile(prov.modLoc("block/swell_shutter")))
+                            .build()))
+            .onRegister(com.simibubi.create.foundation.data.CreateRegistrate.blockModel(
+                    () -> com.finchy.pipeorgans.content.swell.SwellShutterModel::new))
+            .item()
+            .model((ctx, prov) -> prov.withExistingParent(ctx.getName(), prov.modLoc("block/swell_shutter")))
+            .build()
+            .register();
+
+    public static final BlockEntry<com.finchy.pipeorgans.content.swell.SwellControlBlock> SWELL_CONTROL =
+            REGISTRATE.block("swell_control", com.finchy.pipeorgans.content.swell.SwellControlBlock::new)
+            .initialProperties(() -> Blocks.COPPER_BLOCK)
+            .lang("Swell Control")
+            .transform(pickaxeOnly())
+            .tag(com.simibubi.create.AllTags.AllBlockTags.SAFE_NBT.tag)
+            .blockstate((ctx, prov) -> prov.horizontalBlock(ctx.get(),
+                    prov.models().getExistingFile(prov.modLoc("block/swell_control"))))
+            .item()
+            .model((ctx, prov) -> prov.withExistingParent(ctx.getName(), prov.modLoc("block/swell_control")))
+            .build()
+            .register();
+
+    public static final BlockEntry<com.finchy.pipeorgans.content.swell.SwellBoxBlock> SWELL_BOX =
+            REGISTRATE.block("swell_box", com.finchy.pipeorgans.content.swell.SwellBoxBlock::new)
+            .initialProperties(() -> Blocks.OAK_PLANKS)
+            .properties(p -> p.noOcclusion())
+            .lang("Copycat Swell Box")
+            .tag(com.simibubi.create.AllTags.AllBlockTags.SAFE_NBT.tag)
+            .transform(com.simibubi.create.foundation.data.BuilderTransformers.copycat())
+            .blockstate((ctx, prov) -> prov.getVariantBuilder(ctx.get())
+                    .forAllStates(state -> net.minecraftforge.client.model.generators.ConfiguredModel.builder()
+                            .modelFile(prov.models().getExistingFile(prov.modLoc("block/swell_box")))
+                            .build()))
+            .onRegister(com.simibubi.create.foundation.data.CreateRegistrate.blockModel(
+                    () -> com.finchy.pipeorgans.content.swell.SwellBoxModel::new))
+            .item()
+            .build()
+            .register();
+
 
 //register block
     //register pipe block

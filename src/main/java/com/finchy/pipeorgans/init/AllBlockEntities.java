@@ -237,28 +237,6 @@ public class AllBlockEntities {
 
 
 
-    public static final BlockEntityEntry<com.finchy.pipeorgans.content.swell.SwellControlBlockEntity> SWELL_CONTROL_BE =
-            REGISTRATE.blockEntity("swell_control", com.finchy.pipeorgans.content.swell.SwellControlBlockEntity::new)
-            .validBlock(AllBlocks.SWELL_CONTROL)
-            .register();
-
-    // Dedicated copycat block entity for the swell box. Create's shared COPYCAT type
-    // only lists Create's own copycats as valid blocks, so our block needs its own
-    // type (still a CopycatBlockEntity) for the material to be stored and rendered.
-    public static final BlockEntityEntry<com.simibubi.create.content.decoration.copycat.CopycatBlockEntity> SWELL_BOX_BE =
-            REGISTRATE.blockEntity("swell_box", com.simibubi.create.content.decoration.copycat.CopycatBlockEntity::new)
-            .validBlock(AllBlocks.SWELL_BOX)
-            .register();
-
-    // Swell shutter: copycat block entity with a Flywheel visual (animated louver
-    // slats) plus a fallback block entity renderer for when Flywheel is disabled.
-    public static final BlockEntityEntry<com.finchy.pipeorgans.content.swell.SwellShutterBlockEntity> SWELL_SHUTTER_BE =
-            REGISTRATE.blockEntity("swell_shutter", com.finchy.pipeorgans.content.swell.SwellShutterBlockEntity::new)
-            .visual(() -> com.finchy.pipeorgans.content.swell.SwellShutterVisual::new)
-            .validBlock(AllBlocks.SWELL_SHUTTER)
-            .renderer(() -> com.finchy.pipeorgans.content.swell.SwellShutterRenderer::new)
-            .register();
-
     public static void register() {
     }
 }

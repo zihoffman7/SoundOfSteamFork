@@ -11,8 +11,6 @@ public class AllPartialModels {
     TRACKER_BAR_ROLLER = block("tracker_bar/roller"),
     TRACKER_BAR_PAPER = block("tracker_bar/paper"),
 
-    SWELL_SHUTTER = block("swell_shutter"),
-
     GEDECKT_MOUTH_TINY = block("gedeckt/gedeckt_tiny_mouth"),
     GEDECKT_MOUTH_SMALL = block("gedeckt/gedeckt_small_mouth"),
     GEDECKT_MOUTH_MEDIUM = block("gedeckt/gedeckt_medium_mouth"),

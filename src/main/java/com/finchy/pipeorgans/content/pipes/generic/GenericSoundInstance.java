@@ -15,7 +15,6 @@ public class GenericSoundInstance extends AbstractTickableSoundInstance {
     private boolean active;
     private int keepAlive;
     private float fadeOutVolume = 0.001f;
-    private float swellFactor = 1.0f; // multiplied in by enclosing swell boxes
     private PipeSize size;
 
 
@@ -52,10 +51,6 @@ public class GenericSoundInstance extends AbstractTickableSoundInstance {
     }
     public void setPitch(float pitch) {
         this.pitch = pitch;
-    }
-
-    public void setSwellFactor(float factor) {
-        this.swellFactor = Math.max(0f, factor);
     }
 
     @Override
@@ -95,6 +90,6 @@ public class GenericSoundInstance extends AbstractTickableSoundInstance {
         }
         //All this math hurts my brain
         float maxVolume = ClientConfig.PIPE_VOLUME.get().floatValue();
-        this.volume = fadeOutVolume * distanceVolume * maxVolume * swellFactor;
+        this.volume = fadeOutVolume * distanceVolume * maxVolume;
     }
 }

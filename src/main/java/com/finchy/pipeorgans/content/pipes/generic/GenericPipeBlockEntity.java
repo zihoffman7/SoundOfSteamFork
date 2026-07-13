@@ -69,8 +69,6 @@ public abstract class GenericPipeBlockEntity extends SmartBlockEntity implements
     protected void write(CompoundTag tag, boolean clientPacket) {
         tag.putInt("Pitch", pitch);
         tag.putBoolean("Goggles", goggles);
-        if (clientPacket)
-            tag.putFloat("SwellFactor", swellFactor);
         super.write(tag, clientPacket);
     }
 
@@ -85,9 +83,6 @@ public abstract class GenericPipeBlockEntity extends SmartBlockEntity implements
 
         if (!clientPacket)
             return;
-
-        if (tag.contains("SwellFactor"))
-            swellFactor = tag.getFloat("SwellFactor");
 
         if (hadGoggles != goggles) {
             DistExecutor.unsafeRunWhenOn(
@@ -159,39 +154,13 @@ public abstract class GenericPipeBlockEntity extends SmartBlockEntity implements
     @OnlyIn(Dist.CLIENT)
     protected GenericSoundInstance soundInstance;
 
-    // Swell box volume factor — product of all enclosing SwellControl factors.
-    // Server computes it; synced to client via write(clientPacket=true).
-    // Value 1.0 = no swell box / fully open. Applied every audio tick.
-    private float swellFactor = 1.0f;
-
-    /** Called server-side by SwellControlBlockEntity when the enclosure's factor changes. */
-    public void updateSwellFactor(BlockPos controlPos, float factor) {
-        // Store per-control factors in a server-side map, compute product
-        swellFactorMap.put(controlPos, factor);
-        recomputeSwellFactor();
-    }
-
-    /** Called server-side when a swell box is removed/unloaded. */
-    public void removeSwellFactor(BlockPos controlPos) {
-        swellFactorMap.remove(controlPos);
-        recomputeSwellFactor();
-    }
-
-    // Server-side map — not synced directly, only the product is synced
-    private final java.util.Map<BlockPos, Float> swellFactorMap = new java.util.HashMap<>();
-
-    private void recomputeSwellFactor() {
-        float product = 1.0f;
-        for (float f : swellFactorMap.values()) product *= f;
-        swellFactor = product;
-        notifyUpdate(); // syncs swellFactor to clients via write(clientPacket=true)
-    }
-
     @OnlyIn(Dist.CLIENT)
     protected void tickAudio(PipeSize size, boolean powered) {
         if (!powered) {
             if (soundInstance != null) {
                 soundInstance.fadeOut();
+                // Keep the reference so sound can be revived without calling alGenSources again
+                // The instance will call stop() itself once fadeOutVolume reaches 0
             }
             return;
         }
@@ -200,10 +169,11 @@ public abstract class GenericPipeBlockEntity extends SmartBlockEntity implements
         boolean particle = level.getGameTime() % 8 == 0;
 
         if (soundInstance != null && !soundInstance.isStopped() && soundInstance.getOctave() == size) {
+            // Instance exists and is still alive revive it.
             soundInstance.keepAlive();
             soundInstance.setPitch(f);
-            soundInstance.setSwellFactor(swellFactor); // apply every tick so changes are immediate
         } else {
+            // Instance is gone or wrong size. Clear the stale ref
             soundInstance = null;
             if (!isVirtual()) {
                 handleSoundInstance(size);
@@ -212,7 +182,6 @@ public abstract class GenericPipeBlockEntity extends SmartBlockEntity implements
             if (soundInstance != null) {
                 soundInstance.keepAlive();
                 soundInstance.setPitch(f);
-                soundInstance.setSwellFactor(swellFactor); // apply to fresh instance too
             }
         }
 

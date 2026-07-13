@@ -65,11 +65,6 @@ public class AllMenuTypes {
         return PipeOrgans.registrate().menu(name, factory, screenFactory).register();
     }
 
-
-    public static final MenuEntry<com.finchy.pipeorgans.content.swell.SwellControlMenu> SWELL_CONTROL_MENU =
-            register("swell_control", com.finchy.pipeorgans.content.swell.SwellControlMenu::new,
-                    () -> com.finchy.pipeorgans.content.swell.SwellControlScreen::new);
-
     public static void register() {
     }
 

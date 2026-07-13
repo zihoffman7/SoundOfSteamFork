@@ -2,6 +2,7 @@ package com.finchy.pipeorgans.content.swell;
 
 import com.finchy.pipeorgans.network.AllPackets;
 import com.finchy.pipeorgans.network.packet.SwellScanCapPacket;
+import com.finchy.pipeorgans.network.packet.SwellRecalibratePacket;
 import com.simibubi.create.foundation.gui.menu.AbstractSimiContainerScreen;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -16,6 +17,7 @@ public class SwellControlScreen extends AbstractSimiContainerScreen<SwellControl
     private static final int COLOR_LABEL = 0xFFB0B0B0;
 
     private final BlockPos pos;
+    private Button recalibrateButton;
 
     public SwellControlScreen(SwellControlMenu container, Inventory inv, Component title) {
         super(container, inv, title);
@@ -35,6 +37,17 @@ public class SwellControlScreen extends AbstractSimiContainerScreen<SwellControl
                 .bounds(bx, btnY, 16, 14).build());
         addRenderableWidget(Button.builder(Component.literal("+"), b -> adjustCap(true))
                 .bounds(bx + 60, btnY, 16, 14).build());
+
+        int recalY = topPos + SwellControlMenu.RECAL_ROW_Y;
+        recalibrateButton = Button.builder(Component.literal("Recalibrate"), b -> recalibrate())
+                .bounds(bx, recalY, SwellControlMenu.PLAYER_INV_W, 14).build();
+        addRenderableWidget(recalibrateButton);
+    }
+
+    private void recalibrate() {
+        AllPackets.getChannel().sendToServer(new SwellRecalibratePacket(pos));
+        // Only allow one recalibration per GUI open.
+        if (recalibrateButton != null) recalibrateButton.active = false;
     }
 
     private void adjustCap(boolean increase) {
@@ -48,7 +61,7 @@ public class SwellControlScreen extends AbstractSimiContainerScreen<SwellControl
 
         int newCap = increase
                 ? current + step
-                : Math.max(20, current - step); // minimum 20
+                : Math.max(100, current - step);
         menu.getControlBE().setScanCap(newCap);
         AllPackets.getChannel().sendToServer(new SwellScanCapPacket(pos, newCap));
     }

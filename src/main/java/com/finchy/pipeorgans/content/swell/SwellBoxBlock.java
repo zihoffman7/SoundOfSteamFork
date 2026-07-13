@@ -57,6 +57,9 @@ public class SwellBoxBlock extends CopycatBlock {
         super.onRemove(state, level, pos, newState, movedByPiston);
     }
 
+    // Safety bound on wall search
+    private static final int MAX_WALL_SEARCH = SwellControlBlockEntity.DEFAULT_CAP;
+
     // BFS through connected swell box/shutter blocks to find all
     public static void triggerNearbyControls(Level level, BlockPos origin) {
         Set<BlockPos> visited = new HashSet<>();
@@ -74,7 +77,7 @@ public class SwellBoxBlock extends CopycatBlock {
                     // Don't continue BFS through the control itself
                 } else if (level.getBlockState(n).getBlock() instanceof SwellBoxBlock
                         || level.getBlockState(n).getBlock() instanceof SwellShutterBlock) {
-                    if (visited.size() < 2048) queue.add(n);
+                    if (visited.size() < MAX_WALL_SEARCH) queue.add(n);
                 }
             }
         }

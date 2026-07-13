@@ -1,4 +1,4 @@
-// 1.20.1	2026-07-12T14:34:31.018455	Registrate Provider for pipeorgans [Recipes, Advancements, Loot Tables, Tags (blocks), Tags (items), Tags (fluids), Tags (entity_types), Blockstates, Item models, Lang (en_us/en_ud)]
+// 1.20.1	2026-07-13T10:00:04.527639	Registrate Provider for pipeorgans [Recipes, Advancements, Loot Tables, Tags (blocks), Tags (items), Tags (fluids), Tags (entity_types), Blockstates, Item models, Lang (en_us/en_ud)]
 8e39d8877707a62ab2683b5612b9a85b020e09bf assets/pipeorgans/blockstates/base.json
 c746142a5971f7d9610400061ae6db7288f39cc5 assets/pipeorgans/blockstates/bassoon.json
 0f7ac7604f0fee26a230e70f6419cb10df907237 assets/pipeorgans/blockstates/bassoon_extension.json
@@ -36,6 +36,7 @@ ac7c65c8d0214be6aee84606ca2b68618eb0ba60 assets/pipeorgans/blockstates/rohrflote
 e8d28928d909a9453990ed1204dc4e3dd05c74ac assets/pipeorgans/blockstates/subbass.json
 da371c8e3d4f43fabfdf13dfe4470eac44f13e96 assets/pipeorgans/blockstates/subbass_extension.json
 e4807da8f761a7fa2d3d4ed58fb971c92cf0399f assets/pipeorgans/blockstates/swell_box.json
+152cd1b5cf11f931797c44434d6dbdd111a55754 assets/pipeorgans/blockstates/swell_control.json
 80d51f7e3514e45509956b2ac4bbd87a67a05cc9 assets/pipeorgans/blockstates/swell_shutter.json
 ba11d03fdf7115a9e16eae35c28f5c5e2e7cb3aa assets/pipeorgans/blockstates/tierce.json
 e0e732b532e225f8735b79bc45c01fd266442585 assets/pipeorgans/blockstates/tierce_extension.json

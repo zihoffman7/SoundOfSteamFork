@@ -493,7 +493,8 @@ public class AllBlocks {
             .lang("Swell Control")
             .transform(pickaxeOnly())
             .tag(com.simibubi.create.AllTags.AllBlockTags.SAFE_NBT.tag)
-            .blockstate((ctx, prov) -> {})
+            .blockstate((ctx, prov) -> prov.horizontalBlock(ctx.get(),
+                    prov.models().getExistingFile(prov.modLoc("block/swell_control"))))
             .item()
             .model((ctx, prov) -> prov.withExistingParent(ctx.getName(), prov.modLoc("block/swell_control")))
             .build()

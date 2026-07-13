@@ -86,11 +86,11 @@ public class SwellControlBlockEntity extends SmartBlockEntity implements IHaveGo
         }
     }
 
-    // Flood fill — only SwellBoxBlock and SwellShutterBlock are walls
+    // Flood fill
     private void runScan() {
         if (!(level instanceof ServerLevel serverLevel)) return;
 
-        // Rhe scan allocates almost nothing and never queries block entities in the hot loop
+        // Scan allocates almost nothing and never queries block entities in the loop
         LongOpenHashSet visited = new LongOpenHashSet();
         LongOpenHashSet interior = new LongOpenHashSet();
         LongArrayFIFOQueue queue = new LongArrayFIFOQueue();
@@ -101,12 +101,13 @@ public class SwellControlBlockEntity extends SmartBlockEntity implements IHaveGo
         BlockPos.MutableBlockPos cur  = new BlockPos.MutableBlockPos();
         BlockPos.MutableBlockPos next = new BlockPos.MutableBlockPos();
 
-        // Seed from the control's 6 faces, skipping wall blocks
-        for (Direction dir : Direction.values()) {
-            next.setWithOffset(worldPosition, dir);
-            if (!serverLevel.isLoaded(next)) continue;
+        // Start from the block directly behind the control
+        Direction facing = getBlockState().getValue(SwellControlBlock.FACING);
+        next.setWithOffset(worldPosition, facing.getOpposite());
+        if (serverLevel.isLoaded(next)) {
             Block nb = serverLevel.getBlockState(next).getBlock();
-            if (!(nb instanceof SwellBoxBlock) && !(nb instanceof SwellShutterBlock)) {
+            if (!(nb instanceof SwellBoxBlock) && !(nb instanceof SwellShutterBlock)
+                    && !(nb instanceof SwellControlBlock)) {
                 long key = next.asLong();
                 if (visited.add(key)) queue.enqueue(key);
             }
@@ -120,14 +121,23 @@ public class SwellControlBlockEntity extends SmartBlockEntity implements IHaveGo
             cur.set(BlockPos.getX(key), BlockPos.getY(key), BlockPos.getZ(key));
             if (!serverLevel.isLoaded(cur)) { hitCap = true; break; }
 
-            Block block = serverLevel.getBlockState(cur).getBlock();
+            BlockState state = serverLevel.getBlockState(cur);
+            Block block = state.getBlock();
 
             if (block instanceof SwellShutterBlock) {
-                shutters.add(cur.immutable());
-                continue;
-            }
-            if (block instanceof SwellBoxBlock) {
-                continue;
+                // A misoriented shutter is not a valid wall
+                Direction sf = state.getValue(SwellShutterBlock.FACING);
+                next.setWithOffset(cur, sf);
+                boolean seals = interior.contains(next.asLong());
+                next.setWithOffset(cur, sf.getOpposite());
+                seals |= interior.contains(next.asLong());
+                if (seals) {
+                    shutters.add(cur.immutable());
+                    continue; // valid wall seal
+                }
+                // otherwise fall through and traverse it as a leak
+            } else if (block instanceof SwellBoxBlock || block instanceof SwellControlBlock) {
+                continue; // wall boundary
             }
 
             interior.add(key);
@@ -143,21 +153,27 @@ public class SwellControlBlockEntity extends SmartBlockEntity implements IHaveGo
 
         boolean foundHole = hitCap;
 
-        // Keep only wall shutters
-        // A wall shutter has at least one face exposed to the exterior (a neighbour that is neither part of the interior fill nor another swell box/shutter)
+        // Include only wall shutters
         List<BlockPos> wallShutters = new ArrayList<>();
         for (BlockPos sp : shutters) {
-            boolean exposed = false;
+            Direction exposedDir = null;
             for (Direction dir : Direction.values()) {
                 next.setWithOffset(sp, dir);
                 if (interior.contains(next.asLong())) continue; // faces the inside
                 Block nb = serverLevel.getBlockState(next).getBlock();
-                if (!(nb instanceof SwellBoxBlock) && !(nb instanceof SwellShutterBlock)) {
-                    exposed = true; // faces the exterior
+                if (!(nb instanceof SwellBoxBlock) && !(nb instanceof SwellShutterBlock)
+                        && !(nb instanceof SwellControlBlock)) {
+                    exposedDir = dir; // faces the exterior
                     break;
                 }
             }
-            if (exposed) wallShutters.add(sp);
+            if (exposedDir == null) continue; // floating / interior shutter — ignore
+
+            // Only count shutters whose louvers are oriented along the wall's outward axis
+            Direction shutterFacing = serverLevel.getBlockState(sp).getValue(SwellShutterBlock.FACING);
+            if (shutterFacing.getAxis() == exposedDir.getAxis()) {
+                wallShutters.add(sp);
+            }
         }
 
         this.shutterCount   = wallShutters.size();
@@ -195,7 +211,7 @@ public class SwellControlBlockEntity extends SmartBlockEntity implements IHaveGo
             newMaxVol = 1.0f;
             newFactor = 1.0f;
         } else {
-            // Enclosed — 1 shutter covers 64 interior blocks
+            // Enclosed: 1 shutter covers 64 interior blocks
             newMaxVol = interiorVolume > 0
                     ? Math.min(1.0f, (shutterCount * 64f) / interiorVolume)
                     : 1.0f;

@@ -101,15 +101,15 @@ public final class SwellShutterSlatModels {
             float x0 = frac0, x1 = frac1;
 
             List<BakedQuad> quads = new ArrayList<>();
-            // Wide faces (front / back): crop X, move to slat depth. U follows X, V follows Y.
-            for (BakedQuad q : south) quads.add(cropAxis(q, Axis.X, frac0, frac1, Axis.Z, FRONT_Z));
-            for (BakedQuad q : north) quads.add(cropAxis(q, Axis.X, frac0, frac1, Axis.Z, BACK_Z));
+            // Wide faces (front / back): crop X, move to slat depth.
+            for (BakedQuad q : south) quads.add(cropAlong(q, Axis.X, frac0, frac1, Axis.Z, FRONT_Z));
+            for (BakedQuad q : north) quads.add(cropAlong(q, Axis.X, frac0, frac1, Axis.Z, BACK_Z));
             // Top / bottom: crop X (U) and Z (V) to the thin box, keep Y.
             for (BakedQuad q : up)    quads.add(cropBox(q, frac0, frac1, BACK_Z, FRONT_Z, Axis.X, Axis.Z));
             for (BakedQuad q : down)  quads.add(cropBox(q, frac0, frac1, BACK_Z, FRONT_Z, Axis.X, Axis.Z));
-            // Side edges (east / west): crop Z (U), keep Y, move X to slat edge.
-            for (BakedQuad q : east)  quads.add(cropAxis(q, Axis.Z, BACK_Z, FRONT_Z, Axis.X, x1));
-            for (BakedQuad q : west)  quads.add(cropAxis(q, Axis.Z, BACK_Z, FRONT_Z, Axis.X, x0));
+            // Side edges (east / west): crop Z to the thin depth, move X to slat edge.
+            for (BakedQuad q : east)  quads.add(cropAlong(q, Axis.Z, BACK_Z, FRONT_Z, Axis.X, x1));
+            for (BakedQuad q : west)  quads.add(cropAlong(q, Axis.Z, BACK_Z, FRONT_Z, Axis.X, x0));
             perSlat[i] = quads;
         }
         return perSlat;
@@ -125,33 +125,59 @@ public final class SwellShutterSlatModels {
         return new Vec3(a == Axis.X ? val : v.x, a == Axis.Y ? val : v.y, a == Axis.Z ? val : v.z);
     }
 
-    private static BakedQuad cropAxis(BakedQuad src, Axis cropAxis, float frac0, float frac1,
-                                      Axis moveAxis, float moveTo) {
+    // Prevent textures from being smashed
+    private static BakedQuad cropAlong(BakedQuad src, Axis cropAxis, float frac0, float frac1, Axis moveAxis, float moveTo) {
         int[] v = BakedQuadHelper.clone(src).getVertices();
 
-        float min = Float.MAX_VALUE, max = -Float.MAX_VALUE;
+        float cmin = Float.MAX_VALUE, cmax = -Float.MAX_VALUE;
         for (int i = 0; i < 4; i++) {
             float c = coord(BakedQuadHelper.getXYZ(v, i), cropAxis);
-            min = Math.min(min, c);
-            max = Math.max(max, c);
+            cmin = Math.min(cmin, c);
+            cmax = Math.max(cmax, c);
         }
-        float mid = (min + max) * 0.5f;
-        float uMin = 0, uMax = 0;
-        boolean gotMin = false, gotMax = false;
-        for (int i = 0; i < 4; i++) {
-            float c = coord(BakedQuadHelper.getXYZ(v, i), cropAxis);
-            if (c <= mid && !gotMin) { uMin = BakedQuadHelper.getU(v, i); gotMin = true; }
-            if (c >  mid && !gotMax) { uMax = BakedQuadHelper.getU(v, i); gotMax = true; }
+        float span = cmax - cmin;
+        if (span < 1.0e-5f) span = 1f;
+        float mid = (cmin + cmax) * 0.5f;
+
+        // Perpendicular in-plane axis
+        Axis perp = null;
+        for (Axis a : Axis.values()) {
+            if (a == cropAxis) continue;
+            float amin = Float.MAX_VALUE, amax = -Float.MAX_VALUE;
+            for (int i = 0; i < 4; i++) {
+                float c = coord(BakedQuadHelper.getXYZ(v, i), a);
+                amin = Math.min(amin, c);
+                amax = Math.max(amax, c);
+            }
+            if (amax - amin > 1.0e-4f) { perp = a; break; }
+        }
+
+        // Gradient of U and V per unit of cropAxis
+        float dUdc = 0f, dVdc = 0f;
+        Vec3 p0 = BakedQuadHelper.getXYZ(v, 0);
+        float perp0 = perp == null ? 0f : coord(p0, perp);
+        float crop0 = coord(p0, cropAxis);
+        for (int j = 1; j < 4; j++) {
+            Vec3 pj = BakedQuadHelper.getXYZ(v, j);
+            float cj = coord(pj, cropAxis);
+            boolean samePerp = perp == null || Math.abs(coord(pj, perp) - perp0) < 1.0e-4f;
+            if (samePerp && Math.abs(cj - crop0) > 1.0e-4f) {
+                dUdc = (BakedQuadHelper.getU(v, j) - BakedQuadHelper.getU(v, 0)) / (cj - crop0);
+                dVdc = (BakedQuadHelper.getV(v, j) - BakedQuadHelper.getV(v, 0)) / (cj - crop0);
+                break;
+            }
         }
 
         for (int i = 0; i < 4; i++) {
-            Vec3 xyz = BakedQuadHelper.getXYZ(v, i);
-            boolean isMin = coord(xyz, cropAxis) <= mid;
-            float frac = isMin ? frac0 : frac1;
-            float newC = min + (max - min) * frac;
-            Vec3 moved = withCoord(withCoord(xyz, cropAxis, newC), moveAxis, moveTo);
+            Vec3 p = BakedQuadHelper.getXYZ(v, i);
+            float oldC = coord(p, cropAxis);
+            boolean isMin = oldC <= mid;
+            float newC = cmin + span * (isMin ? frac0 : frac1);
+            float delta = newC - oldC;
+            Vec3 moved = withCoord(withCoord(p, cropAxis, newC), moveAxis, moveTo);
             BakedQuadHelper.setXYZ(v, i, moved);
-            BakedQuadHelper.setU(v, i, uMin + (uMax - uMin) * frac);
+            BakedQuadHelper.setU(v, i, BakedQuadHelper.getU(v, i) + dUdc * delta);
+            BakedQuadHelper.setV(v, i, BakedQuadHelper.getV(v, i) + dVdc * delta);
         }
         return BakedQuadHelper.cloneWithCustomGeometry(src, v);
     }
@@ -215,8 +241,7 @@ public final class SwellShutterSlatModels {
         }
 
         @Override
-        public List<BakedQuad> getQuads(BlockState state, Direction side, RandomSource rand,
-                                        ModelData data, net.minecraft.client.renderer.RenderType renderType) {
+        public List<BakedQuad> getQuads(BlockState state, Direction side, RandomSource rand, ModelData data, net.minecraft.client.renderer.RenderType renderType) {
             return side == null ? quads : List.of();
         }
 

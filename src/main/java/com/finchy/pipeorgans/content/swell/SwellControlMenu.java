@@ -17,6 +17,7 @@ public class SwellControlMenu extends MenuBase<SwellControlBlockEntity> {
     public static final int TITLE_Y = 6;
     public static final int CAP_LABEL_Y  = 18;
     public static final int CAP_ROW_Y = 28;
+    public static final int RECAL_ROW_Y = 46;
     public static final int PLAYER_INV_W = 162;
     public static final int PLAYER_INV_H = 76;
     public static final int INV_GAP = 10;
@@ -35,7 +36,7 @@ public class SwellControlMenu extends MenuBase<SwellControlBlockEntity> {
 
     public SwellControlBlockEntity getControlBE() { return contentHolder; }
 
-    public static int contentBottom() { return CAP_ROW_Y + 18; }
+    public static int contentBottom() { return RECAL_ROW_Y + 18; }
     public static int playerInvY() { return contentBottom() + INV_GAP; }
     public static int guiWidth() { return PLAYER_INV_W + 2 * MARGIN; }
     public static int guiHeight() { return playerInvY() + PLAYER_INV_H + MARGIN; }

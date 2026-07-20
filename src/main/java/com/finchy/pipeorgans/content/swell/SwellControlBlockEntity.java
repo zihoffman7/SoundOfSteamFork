@@ -220,13 +220,13 @@ public class SwellControlBlockEntity extends SmartBlockEntity implements IHaveGo
         this.maxVolume = newMaxVol;
         this.volumeFactor = newFactor;
 
-        // Apply shutter openness
+        // Apply shutter openness.
         for (BlockPos sp : cachedShutters) {
             BlockState s = serverLevel.getBlockState(sp);
             if (s.getBlock() instanceof SwellShutterBlock
                     && s.getValue(SwellShutterBlock.OPENNESS) != signalLevel) {
                 serverLevel.setBlock(sp, s.setValue(SwellShutterBlock.OPENNESS, signalLevel),
-                        Block.UPDATE_CLIENTS);
+                        Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
             }
         }
 

@@ -159,25 +159,24 @@ public abstract class GenericPipeBlockEntity extends SmartBlockEntity implements
     @OnlyIn(Dist.CLIENT)
     protected GenericSoundInstance soundInstance;
 
-    // Swell box volume factor — product of all enclosing SwellControl factors.
-    // Server computes it; synced to client via write(clientPacket=true).
-    // Value 1.0 = no swell box / fully open. Applied every audio tick.
+    // Synced to client via write(clientPacket=true).
     private float swellFactor = 1.0f;
 
-    /** Called server-side by SwellControlBlockEntity when the enclosure's factor changes. */
+    protected float getSwellFactor() {
+        return swellFactor;
+    }
+
     public void updateSwellFactor(BlockPos controlPos, float factor) {
         // Store per-control factors in a server-side map, compute product
         swellFactorMap.put(controlPos, factor);
         recomputeSwellFactor();
     }
 
-    /** Called server-side when a swell box is removed/unloaded. */
     public void removeSwellFactor(BlockPos controlPos) {
         swellFactorMap.remove(controlPos);
         recomputeSwellFactor();
     }
 
-    // Server-side map — not synced directly, only the product is synced
     private final java.util.Map<BlockPos, Float> swellFactorMap = new java.util.HashMap<>();
 
     private void recomputeSwellFactor() {

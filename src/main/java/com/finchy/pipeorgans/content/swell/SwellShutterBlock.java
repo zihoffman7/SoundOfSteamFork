@@ -95,7 +95,8 @@ public class SwellShutterBlock extends CopycatBlock {
     @Override
     public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
         super.onPlace(state, level, pos, oldState, movedByPiston);
-        if (!level.isClientSide) SwellBoxBlock.triggerNearbyControls(level, pos);
+        if (!level.isClientSide && !oldState.is(state.getBlock()))
+            SwellBoxBlock.triggerNearbyControls(level, pos);
     }
 
     @Override

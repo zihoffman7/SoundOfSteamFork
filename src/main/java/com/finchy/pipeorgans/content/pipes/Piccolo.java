@@ -165,6 +165,7 @@ public class Piccolo {
             if (soundInstance != null) {
                 soundInstance.keepAlive();
                 soundInstance.setPitch(f);
+                soundInstance.setSwellFactor(getSwellFactor()); // apply swell box muffling
             }
 
             if (!particle)
@@ -192,6 +193,7 @@ public class Piccolo {
                                 new PiccoloSoundInstance.PiccoloWaterSoundInstance(worldPosition));
             }
             waterSound.keepAlive();
+            waterSound.setSwellFactor(getSwellFactor()); // apply swell box muffling
 
             if (level.getGameTime() % 2 == 0) { // medium-fast stream
                 Direction facing = getBlockState().getValue(GenericPipeBlock.FACING);

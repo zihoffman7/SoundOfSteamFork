@@ -65,12 +65,10 @@ public class SwellControlBlock extends Block implements IBE<SwellControlBlockEnt
     @Override
     public void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock, BlockPos neighborPos, boolean movedByPiston) {
         super.neighborChanged(state, level, pos, neighborBlock, neighborPos, movedByPiston);
+        // Redstone signal change only re-applies volume + shutter status
+        // Structural changes to the enclosure are handled by SwellBoxBlock/SwellShutterBlock
         if (!level.isClientSide)
-            withBlockEntityDo(level, pos, be -> {
-                be.onSignalChanged(level.getBestNeighborSignal(pos));
-                if (level.getBlockState(neighborPos).isAir())
-                    be.forceRescan();
-            });
+            withBlockEntityDo(level, pos, be -> be.onSignalChanged(level.getBestNeighborSignal(pos)));
     }
 
     private void updateSignal(Level level, BlockPos pos) {
@@ -88,7 +86,7 @@ public class SwellControlBlock extends Block implements IBE<SwellControlBlockEnt
                         (net.minecraft.server.level.ServerPlayer) player, be, be::sendToMenu));
         return net.minecraft.world.InteractionResult.SUCCESS;
     }
-    
+
     @Override
     public Class<SwellControlBlockEntity> getBlockEntityClass() {
         return SwellControlBlockEntity.class;
